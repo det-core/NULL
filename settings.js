@@ -22,6 +22,11 @@ global.resellerTelegramIds = []
 global.nameowner = "ꪶ ¡ϻ Nᴜʟʟ ꫂ" 
 global.author = ["2347030626048"] 
 global.nameauthor = "ꪶ ¡ϻ Nᴜʟʟ ꫂ" 
+global.inline = global.inline ?? true;
+global.lockPair = global.lockPair ?? false;
+global.vip = global.vip || [];
+global.sessionState = global.sessionState || {};
+global.startTime = global.startTime || Date.now();
 global.namebot = "Nᴜʟʟ Cʀᴀsʜ V𝟷" 
 global.det = {
   newsletterJid: 

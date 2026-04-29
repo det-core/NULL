@@ -13,18 +13,22 @@ const {
 } = require("@whiskeysockets/baileys");
 
 const fs = require("fs");
-const path = require("path");
-const { exec } = require("child_process");
-
 require("./settings.js");
 const nullHandler = require("./null.js");
 
-//
+//================ BOT =================//
 const det = new TelegramBot(global.telegramToken, {
   polling: true
 });
 
-//
+//================ GLOBAL UPGRADES =================//
+global.inline = global.inline ?? true;
+global.lockPair = global.lockPair ?? false;
+global.sessionState = global.sessionState || {};
+global.startTime = global.startTime || Date.now();
+global.vip = global.vip || [];
+
+//================ STORAGE =================//
 const dbPath = "./system/database";
 const sessionDir = "./Null_Sessions";
 
@@ -37,7 +41,7 @@ if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
 if (!fs.existsSync(userDB)) fs.writeFileSync(userDB, "{}");
 if (!fs.existsSync(couponDB)) fs.writeFileSync(couponDB, "{}");
 
-//
+//================ HELPERS =================//
 const getUsers = () => JSON.parse(fs.readFileSync(userDB));
 const saveUsers = (d) => fs.writeFileSync(userDB, JSON.stringify(d, null, 2));
 
@@ -47,7 +51,17 @@ const saveCoupons = (d) => fs.writeFileSync(couponDB, JSON.stringify(d, null, 2)
 const isAdmin = (id) =>
   (global.adminTelegramIds || []).includes(String(id));
 
-//
+const isVip = (id) =>
+  global.vip.includes(String(id));
+
+//================ SESSION STATUS =================//
+function getSessionStatus(id) {
+  const dir = `${sessionDir}/${id}`;
+  if (!fs.existsSync(dir)) return "NOT LINKED";
+  return global.sessionState[id] || "OFFLINE";
+}
+
+//================ CHANNEL CHECK =================//
 async function checkChannel(userId) {
   try {
     for (let ch of global.requiredChannels || []) {
@@ -60,366 +74,396 @@ async function checkChannel(userId) {
   }
 }
 
-//
+//================ USER ACCESS =================//
 function canUse(id) {
   if (isAdmin(id)) return true;
 
-  if (!global.freeTrialEnabled) return false;
-
   let users = getUsers();
-  users[id] = users[id] || {
-    banned: false,
-    vip: false,
-    redeemed: []
-  };
+  users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
 
+  if (users[id].banned) return false;
   if (users[id].vip) return true;
+  if (isVip(id)) return true;
 
-  return true;
+  return global.freeTrialEnabled;
 }
 
-//
-det.onText(/\/start/, async (msg) => {
+//================ INLINE MENU BUILDER =================//
+function buildInlineMenu(isAdm, chatId) {
+  const keyboard = [];
+
+  // Row 1: SESSION | USERS
+  const row1 = [];
+  row1.push({ text: "SESSION", callback_data: "session" });
+  if (isAdm) {
+    row1.push({ text: "USERS", callback_data: "users" });
+  }
+  keyboard.push(row1);
+
+  // Row 2: PAIR | STATS
+  const row2 = [];
+  row2.push({ text: "PAIR", callback_data: "pair" });
+  row2.push({ text: "STATS", callback_data: "stats" });
+  keyboard.push(row2);
+
+  return {
+    reply_markup: {
+      inline_keyboard: keyboard
+    }
+  };
+}
+
+function buildTextMenu(isAdm) {
+  let det = `┌⪼❏ USER MENU\n├ /pair <number>\n├ /activesession\n├ /stats\n└ ❏ NULL SYSTEM`;
+
+  if (isAdm) {
+    det += `\n\n┌⪼❏ ADMIN PANEL\n├ /bc\n├ /bcimg\n├ /inline on/off\n├ /lockpair on/off\n├ /violist\n├ /sessions\n├ /checkusers\n└ ❏ NULL SYSTEM`;
+  }
+
+  return det;
+}
+
+//================ START =================//
+det.onText(/\/start/, (msg) => {
   const id = String(msg.from.id);
 
   let users = getUsers();
-  users[id] = users[id] || {
-    banned: false,
-    vip: false,
-    redeemed: []
-  };
+  users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
 
-  det.sendPhoto(msg.chat.id, global.img.menu, {
-    caption:
+  det.sendMessage(msg.chat.id,
 `┌⪼❏ ${global.nameBot}
+├◆ dev: ${global.dev}
 ├◆ version: ${global.versionBot}
-├◆ Developer: ${global.dev}
-└ ❏ Use /det`
-  });
+├◆ inline: ${global.inline}
+└ ❏ use /det`);
 });
 
-//
-det.onText(/\/det/, (msg) => {
+//================ MENU =================//
+det.onText(/\/det|\/panel/, (msg) => {
   const id = String(msg.from.id);
+  const isAdm = isAdmin(id);
 
-  let txt =
-`┌⪼❏ USER MENU
-├ /start
-├ /det
-├ /pair <number>
-├ /delsess
-├ /redeem <code>
-└ ❏ Powered By NULL`;
-
-  if (isAdmin(id)) {
-    txt += `
-
-┌⪼❏ ADMIN PANEL
-├ /ban <id>
-├ /unban <id>
-├ /checkusers
-├ /addvip <id>
-├ /bc <text>
-├ /createcoupon <code> <uses> vip|trial
-├ /deletecoupon <code>
-├ /freetrial on/off
-└ ❏`;
+  if (global.inline) {
+    const opts = buildInlineMenu(isAdm, msg.chat.id);
+    return det.sendMessage(msg.chat.id, "┌⪼❏ MAIN MENU", opts);
   }
 
-  det.sendMessage(msg.chat.id, txt);
+  const det = buildTextMenu(isAdm);
+  return det.sendMessage(msg.chat.id, det);
 });
 
-//
-det.onText(/\/delsess/, async (msg) => {
+//================ ACTIVE SESSION =================//
+det.onText(/\/activesession/, (msg) => {
   const id = String(msg.from.id);
-  const dir = `${sessionDir}/${id}`;
+  return det.sendMessage(msg.chat.id,
+`┌⪼❏ SESSION STATUS
+└ ${getSessionStatus(id)}`);
+});
 
-  try {
-    if (fs.existsSync(dir)) {
-      fs.rmSync(dir, { recursive: true, force: true });
+//================ SESSIONS (ADMIN) =================//
+det.onText(/\/sessions/, (msg) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  const sessions = Object.entries(global.sessionState)
+    .map(([uid, status]) => `├ ${uid}: ${status}`)
+    .join("\n");
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ ALL SESSIONS
+${sessions || "├ NONE"}
+└ ❏ NULL`);
+});
+
+//================ CHECK USERS (ADMIN) =================//
+det.onText(/\/checkusers/, (msg) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  let users = getUsers();
+  const list = Object.keys(users).map(u => `├ ${u}`).join("\n");
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ REGISTERED USERS
+${list || "├ NONE"}
+└ TOTAL: ${Object.keys(users).length}`);
+});
+
+//================ INLINE CALLBACK =================//
+det.on("callback_query", async (cb) => {
+  const id = String(cb.from.id);
+  const isAdm = isAdmin(id);
+  const chatId = cb.message.chat.id;
+
+  // Answer callback to remove loading
+  det.answerCallbackQuery(cb.id);
+
+  if (cb.data === "session") {
+    return det.sendMessage(chatId,
+`┌⪼❏ YOUR SESSION
+├ ID: ${id}
+├ STATUS: ${getSessionStatus(id)}
+└ ❏ NULL`);
+  }
+
+  if (cb.data === "users") {
+    if (!isAdm) {
+      return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    }
+    let users = getUsers();
+    return det.sendMessage(chatId,
+`┌⪼❏ TOTAL USERS
+├ COUNT: ${Object.keys(users).length}
+└ ❏ NULL`);
+  }
+
+  if (cb.data === "stats") {
+    const baseStats =
+`┌⪼❏ NULL STATS
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ INLINE: ${global.inline}
+├ LOCK PAIR: ${global.lockPair}
+└ ❏ NULL`;
+
+    if (isAdm) {
+      let users = getUsers();
+      return det.sendMessage(chatId,
+`┌⪼❏ ADMIN STATS
+├ USERS: ${Object.keys(users).length}
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ INLINE: ${global.inline}
+├ LOCK PAIR: ${global.lockPair}
+├ VIP COUNT: ${global.vip.length}
+└ ❏ NULL`);
     }
 
-    det.sendMessage(msg.chat.id,
-`┌⪼❏ SESSION REMOVED
-└ ❏ Pair again with /pair`);
-  } catch {
-    det.sendMessage(msg.chat.id, "⪼❏ FAILED");
+    return det.sendMessage(chatId, baseStats);
+  }
+
+  if (cb.data === "pair") {
+    return det.sendMessage(chatId,
+`┌⪼❏ PAIR COMMAND
+├ USE: /pair <number>
+└ ❏ NULL`);
   }
 });
 
-//
+//================ INLINE TOGGLE =================//
+det.onText(/\/inline (on|off)/, (msg, m) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  global.inline = m[1] === "on";
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ INLINE TOGGLE
+├ STATUS: ${global.inline ? "ON" : "OFF"}
+└ ❏ NULL`);
+});
+
+//================ LOCK PAIR =================//
+det.onText(/\/lockpair (on|off)/, (msg, m) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  global.lockPair = m[1] === "on";
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ PAIR LOCK TOGGLE
+├ STATUS: ${global.lockPair ? "LOCKED" : "UNLOCKED"}
+└ ❏ NULL`);
+});
+
+//================ VIP LIST =================//
+det.onText(/\/violist/, (msg) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  const list = global.vip.length
+    ? global.vip.map(v => `├ ${v}`).join("\n")
+    : "├ EMPTY";
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ VIP USERS
+${list}
+└ TOTAL: ${global.vip.length}`);
+});
+
+//================ STATS =================//
+det.onText(/\/stats/, (msg) => {
+  let users = getUsers();
+  const id = String(msg.from.id);
+  const isAdm = isAdmin(id);
+
+  let statsMsg =
+`┌⪼❏ NULL STATS
+├ USERS: ${Object.keys(users).length}
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ INLINE: ${global.inline}
+├ LOCK: ${global.lockPair}
+└ ❏ NULL`;
+
+  if (isAdm) {
+    statsMsg =
+`┌⪼❏ ADMIN STATS
+├ USERS: ${Object.keys(users).length}
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ INLINE: ${global.inline}
+├ LOCK: ${global.lockPair}
+├ VIP COUNT: ${global.vip.length}
+└ ❏ NULL`;
+  }
+
+  det.sendMessage(msg.chat.id, statsMsg);
+});
+
+//================ BROADCAST =================//
+det.onText(/\/bc (.+)/, async (msg, m) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  let users = getUsers();
+  let list = Object.keys(users);
+
+  let sent = 0;
+  let failed = 0;
+
+  for (let uid of list) {
+    try {
+      await det.sendMessage(uid,
+`┌⪼❏ ANNOUNCEMENT
+└ ${m[1]}`);
+      sent++;
+    } catch {
+      failed++;
+    }
+  }
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ BC DONE
+├ SENT: ${sent}
+├ FAILED: ${failed}
+└ ❏ NULL`);
+});
+
+//================ IMAGE BC =================//
+det.onText(/\/bcimg (.+?) (.+)/, async (msg, m) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  let users = getUsers();
+  let list = Object.keys(users);
+
+  let sent = 0;
+  let failed = 0;
+
+  for (let uid of list) {
+    try {
+      await det.sendPhoto(uid, m[1], {
+        caption: `┌⪼❏ ANNOUNCEMENT\n└ ${m[2]}`
+      });
+      sent++;
+    } catch {
+      failed++;
+    }
+  }
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ IMAGE BC DONE
+├ SENT: ${sent}
+├ FAILED: ${failed}
+└ ❏ NULL`);
+});
+
+//================ PAIR =================//
 det.onText(/\/pair (.+)/, async (msg, match) => {
   const id = String(msg.from.id);
   const chatId = msg.chat.id;
+
+  // Lock pair check: only admins bypass
+  if (global.lockPair && !isAdmin(id)) {
+    return det.sendMessage(chatId,
+`┌⪼❏ PAIR LOCKED
+├ STATUS: Only admins can pair right now
+└ ❏ NULL`);
+  }
+
   const number = match[1].replace(/\D/g, "");
 
   let users = getUsers();
-
-  users[id] = users[id] || {
-    banned: false,
-    vip: false,
-    redeemed: []
-  };
-
+  users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
 
-  if (users[id].banned && !isAdmin(id)) {
-    return det.sendMessage(chatId, "⪼❏ BANNED");
-  }
-
-  if (!canUse(id)) {
-    return det.sendMessage(chatId,
+  if (!canUse(id)) return det.sendMessage(chatId,
 `┌⪼❏ ACCESS DENIED
-├◆ Free trial disabled
-└ ❏ Contact ${global.dev}`);
-  }
-
-  const joined = await checkChannel(id);
-  if (!joined && !isAdmin(id)) {
-    return det.sendMessage(chatId,
-`┌⪼❏ JOIN REQUIRED
-└ ❏ ${global.requiredChannels.join(", ")}`);
-  }
-
-  if (number.length < 10 || number.length > 15) {
-    return det.sendMessage(chatId,
-`┌⪼❏ INVALID NUMBER
-└ ❏ Example: 2347030626048`);
-  }
+├ REASON: Banned or no access
+└ ❏ NULL`);
 
   const userPath = `${sessionDir}/${id}`;
-
-  if (!fs.existsSync(userPath))
-    fs.mkdirSync(userPath, { recursive: true });
+  if (!fs.existsSync(userPath)) fs.mkdirSync(userPath, { recursive: true });
 
   async function startSocket() {
-    const { state, saveCreds } =
-      await useMultiFileAuthState(userPath);
+    const { state, saveCreds } = await useMultiFileAuthState(userPath);
+    const { version } = await fetchLatestBaileysVersion();
 
-    const { version } =
-      await fetchLatestBaileysVersion();
-
-    const sock = makeWASocket({
-      version,
-      auth: state,
-      printQRInTerminal: false
-    });
+    const sock = makeWASocket({ version, auth: state });
 
     sock.ev.on("creds.update", saveCreds);
 
-    sock.ev.on("connection.update", async (u) => {
+    sock.ev.on("connection.update", (u) => {
       const { connection, lastDisconnect } = u;
 
+      const code = lastDisconnect?.error?.output?.statusCode;
+      const err = lastDisconnect?.error?.message || "";
+
       if (connection === "open") {
+        global.sessionState[id] = "ACTIVE";
         det.sendMessage(chatId,
-`┌⪼❏ CONNECTED
-└ ❏ WhatsApp Linked`);
-
-        try {
-          sock.groupAcceptInvite(global.det.newsletterJid);
-        } catch {}
-
-        sock.ev.on("messages.upsert", async (chatUpdate) => {
-          const m = chatUpdate.messages[0];
-          if (!m || !m.message) return;
-          await nullHandler(sock, m, chatUpdate, null);
-        });
+`┌⪼❏ CONNECTION
+├ STATUS: ACTIVE
+└ ❏ NULL`);
       }
 
       if (connection === "close") {
-        const code =
-          lastDisconnect?.error?.output?.statusCode;
+        global.sessionState[id] = "OFFLINE";
 
         if (
+          err.includes("PreKeyError") ||
+          err.includes("Timed Out") ||
           code === 515 ||
-          code === 408 ||
-          code === 428 ||
-          code === DisconnectReason.restartRequired
+          code === 408
         ) {
-          det.sendMessage(chatId,
-`⪼❏ RECONNECTING...`);
-
+          global.sessionState[id] = "REPAIRING";
           setTimeout(startSocket, 3000);
+          return;
         }
+
+        setTimeout(startSocket, 4000);
       }
     });
 
     if (!sock.authState.creds.registered) {
       setTimeout(async () => {
-        try {
-          const code =
-            await sock.requestPairingCode(number);
-
-          det.sendMessage(chatId,
-`┌⪼❏ NULL Pair CODE
-└ ❏ ${code}`);
-        } catch {
-          det.sendMessage(chatId,
-`⪼❏ FAILED TO GENERATE`);
-        }
-      }, 2500);
+        const code = await sock.requestPairingCode(number);
+        det.sendMessage(chatId,
+`┌⪼❏ PAIR CODE
+├ NUMBER: ${number}
+├ CODE: ${code}
+└ ❏ NULL`);
+      }, 2000);
     }
   }
 
   det.sendMessage(chatId,
-`⪼❏ GENERATING CODE...`);
-
+`┌⪼❏ GENERATING
+├ NUMBER: ${number}
+├ PLEASE WAIT...
+└ ❏ NULL`);
   startSocket();
 });
 
-//
-det.onText(/\/ban (\d+)/, (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let users = getUsers();
-
-  users[m[1]] = users[m[1]] || {};
-  users[m[1]].banned = true;
-
-  saveUsers(users);
-
-  det.sendMessage(msg.chat.id, "⪼❏ BANNED");
-});
-
-//
-det.onText(/\/unban (\d+)/, (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let users = getUsers();
-
-  users[m[1]] = users[m[1]] || {};
-  users[m[1]].banned = false;
-
-  saveUsers(users);
-
-  det.sendMessage(msg.chat.id, "⪼❏ UNBANNED");
-});
-
-//
-det.onText(/\/checkusers/, (msg) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let users = getUsers();
-
+//================ DEFAULT PAIR (NO NUMBER) =================//
+det.onText(/\/pair$/, (msg) => {
   det.sendMessage(msg.chat.id,
-`┌⪼❏ USERS
-└ ❏ ${Object.keys(users).length}`);
+`┌⪼❏ PAIR HELP
+├ USAGE: /pair <number>
+├ EXAMPLE: /pair 2347030626048
+└ ❏ NULL`);
 });
 
-//
-det.onText(/\/addvip (\d+)/, (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let users = getUsers();
-
-  users[m[1]] = users[m[1]] || {};
-  users[m[1]].vip = true;
-
-  saveUsers(users);
-
-  det.sendMessage(msg.chat.id, "⪼❏ VIP ADDED");
-});
-
-//
-det.onText(/\/freetrial (on|off)/, (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  global.freeTrialEnabled =
-    m[1].toLowerCase() === "on";
-
-  det.sendMessage(msg.chat.id,
-`┌⪼❏ FREE TRIAL
-└ ❏ ${m[1].toUpperCase()}`);
-});
-
-//
-det.onText(/\/createcoupon (\w+) (\d+) (vip|trial)/, (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let coupons = getCoupons();
-
-  coupons[m[1]] = {
-    uses: parseInt(m[2]),
-    type: m[3]
-  };
-
-  saveCoupons(coupons);
-
-  det.sendMessage(msg.chat.id,
-`⪼❏ COUPON CREATED`);
-});
-
-// ┌ ❏ DELETE COUPON
-det.onText(/\/deletecoupon (\w+)/, (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let coupons = getCoupons();
-
-  delete coupons[m[1]];
-
-  saveCoupons(coupons);
-
-  det.sendMessage(msg.chat.id,
-`⪼❏ DELETED`);
-});
-
-//
-det.onText(/\/redeem (\w+)/, (msg, m) => {
-  const id = String(msg.from.id);
-  const code = m[1];
-
-  let users = getUsers();
-  let coupons = getCoupons();
-
-  if (!coupons[code]) {
-    return det.sendMessage(msg.chat.id,
-`⪼❏ INVALID`);
-  }
-
-  users[id] = users[id] || {
-    banned: false,
-    vip: false,
-    redeemed: []
-  };
-
-  if (users[id].redeemed.includes(code)) {
-    return det.sendMessage(msg.chat.id,
-`⪼❏ USED`);
-  }
-
-  users[id].redeemed.push(code);
-
-  if (coupons[code].type === "vip") {
-    users[id].vip = true;
-  }
-
-  coupons[code].uses--;
-
-  if (coupons[code].uses <= 0) {
-    delete coupons[code];
-  }
-
-  saveUsers(users);
-  saveCoupons(coupons);
-
-  det.sendMessage(msg.chat.id,
-`⪼❏ SUCCESS`);
-});
-
-//
-det.onText(/\/bc (.+)/, async (msg, m) => {
-  if (!isAdmin(msg.from.id)) return;
-
-  let users = getUsers();
-
-  for (let uid of Object.keys(users)) {
-    det.sendMessage(uid, `📢 ${m[1]}`).catch(() => {});
-  }
-
-  det.sendMessage(msg.chat.id,
-`⪼❏ SENT`);
-});
-
-//
+//================ ERROR =================//
 process.on("uncaughtException", console.log);

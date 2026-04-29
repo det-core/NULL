@@ -117,7 +117,7 @@ function buildTextMenu(isAdm) {
   let det = `┌⪼❏ USER MENU\n├ /pair <number>\n├ /activesession\n├ /stats\n└ ❏ NULL SYSTEM`;
 
   if (isAdm) {
-    det += `\n\n┌⪼❏ ADMIN PANEL\n├ /bc\n├ /bcimg\n├ /inline on/off\n├ /lockpair on/off\n├ /violist\n├ /sessions\n├ /checkusers\n└ ❏ NULL SYSTEM`;
+    det += `\n\n┌⪼❏ ADMIN PANEL\n├ /bc\n├ /bcimg\n├ /inline on/off\n├ /lockpair on/off\n├ /violist\n├ /sessions\n├ /checkusers\n└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
   return det;
@@ -136,7 +136,9 @@ det.onText(/\/start/, (msg) => {
 ├◆ dev: ${global.dev}
 ├◆ version: ${global.versionBot}
 ├◆ inline: ${global.inline}
-└ ❏ use /det`);
+├◆ Made by: ${global.authors}
+└ ❏ use /det
+> ${global.nameauthor}`);
 });
 
 //================ MENU =================//
@@ -172,7 +174,7 @@ det.onText(/\/sessions/, (msg) => {
   det.sendMessage(msg.chat.id,
 `┌⪼❏ ALL SESSIONS
 ${sessions || "├ NONE"}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
 //================ CHECK USERS (ADMIN) =================//
@@ -202,7 +204,7 @@ det.on("callback_query", async (cb) => {
 `┌⪼❏ YOUR SESSION
 ├ ID: ${id}
 ├ STATUS: ${getSessionStatus(id)}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   }
 
   if (cb.data === "users") {
@@ -213,7 +215,7 @@ det.on("callback_query", async (cb) => {
     return det.sendMessage(chatId,
 `┌⪼❏ TOTAL USERS
 ├ COUNT: ${Object.keys(users).length}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   }
 
   if (cb.data === "stats") {
@@ -222,7 +224,7 @@ det.on("callback_query", async (cb) => {
 ├ SESSIONS: ${Object.keys(global.sessionState).length}
 ├ INLINE: ${global.inline}
 ├ LOCK PAIR: ${global.lockPair}
-└ ❏ NULL`;
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
 
     if (isAdm) {
       let users = getUsers();
@@ -233,7 +235,7 @@ det.on("callback_query", async (cb) => {
 ├ INLINE: ${global.inline}
 ├ LOCK PAIR: ${global.lockPair}
 ├ VIP COUNT: ${global.vip.length}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 
     return det.sendMessage(chatId, baseStats);
@@ -243,7 +245,7 @@ det.on("callback_query", async (cb) => {
     return det.sendMessage(chatId,
 `┌⪼❏ PAIR COMMAND
 ├ USE: /pair <number>
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   }
 });
 
@@ -256,7 +258,7 @@ det.onText(/\/inline (on|off)/, (msg, m) => {
   det.sendMessage(msg.chat.id,
 `┌⪼❏ INLINE TOGGLE
 ├ STATUS: ${global.inline ? "ON" : "OFF"}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
 //================ LOCK PAIR =================//
@@ -268,7 +270,7 @@ det.onText(/\/lockpair (on|off)/, (msg, m) => {
   det.sendMessage(msg.chat.id,
 `┌⪼❏ PAIR LOCK TOGGLE
 ├ STATUS: ${global.lockPair ? "LOCKED" : "UNLOCKED"}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
 //================ VIP LIST =================//
@@ -297,7 +299,7 @@ det.onText(/\/stats/, (msg) => {
 ├ SESSIONS: ${Object.keys(global.sessionState).length}
 ├ INLINE: ${global.inline}
 ├ LOCK: ${global.lockPair}
-└ ❏ NULL`;
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
 
   if (isAdm) {
     statsMsg =
@@ -307,7 +309,7 @@ det.onText(/\/stats/, (msg) => {
 ├ INLINE: ${global.inline}
 ├ LOCK: ${global.lockPair}
 ├ VIP COUNT: ${global.vip.length}
-└ ❏ NULL`;
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
   det.sendMessage(msg.chat.id, statsMsg);
@@ -338,7 +340,7 @@ det.onText(/\/bc (.+)/, async (msg, m) => {
 `┌⪼❏ BC DONE
 ├ SENT: ${sent}
 ├ FAILED: ${failed}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
 //================ IMAGE BC =================//
@@ -366,7 +368,7 @@ det.onText(/\/bcimg (.+?) (.+)/, async (msg, m) => {
 `┌⪼❏ IMAGE BC DONE
 ├ SENT: ${sent}
 ├ FAILED: ${failed}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
 //================ PAIR =================//
@@ -378,8 +380,9 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
   if (global.lockPair && !isAdmin(id)) {
     return det.sendMessage(chatId,
 `┌⪼❏ PAIR LOCKED
-├ STATUS: Only admins can pair right now
-└ ❏ NULL`);
+├ STATUS: Only admins can pair right now 
+├ Contact ${global.dev} to buy/get access
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   }
 
   const number = match[1].replace(/\D/g, "");
@@ -391,7 +394,7 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
   if (!canUse(id)) return det.sendMessage(chatId,
 `┌⪼❏ ACCESS DENIED
 ├ REASON: Banned or no access
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 
   const userPath = `${sessionDir}/${id}`;
   if (!fs.existsSync(userPath)) fs.mkdirSync(userPath, { recursive: true });
@@ -415,7 +418,7 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
         det.sendMessage(chatId,
 `┌⪼❏ CONNECTION
 ├ STATUS: ACTIVE
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
       }
 
       if (connection === "close") {
@@ -443,7 +446,7 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
 `┌⪼❏ PAIR CODE
 ├ NUMBER: ${number}
 ├ CODE: ${code}
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
       }, 2000);
     }
   }
@@ -452,7 +455,7 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
 `┌⪼❏ GENERATING
 ├ NUMBER: ${number}
 ├ PLEASE WAIT...
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   startSocket();
 });
 
@@ -462,7 +465,7 @@ det.onText(/\/pair$/, (msg) => {
 `┌⪼❏ PAIR HELP
 ├ USAGE: /pair <number>
 ├ EXAMPLE: /pair 2347030626048
-└ ❏ NULL`);
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
 //================ ERROR =================//

@@ -20,7 +20,7 @@ const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premiun");
 
 //===============
-module.exports = det = async (det, n, chatUpdate, store) => {
+module.exports = det = async (det, m, chatUpdate, store) => {
 
 try {
 const body = (
@@ -119,7 +119,7 @@ async function doneress () {
   
   det.sendMessage(n.chat, {
     video: {
-      url: 'https://files.catbox.moe/3uhyy5.mp4'
+      url: 'https://files.catbox.moe/3uhyy5.mp4'' 
     },
     caption: ressdone,
     gifPlayback: true,  

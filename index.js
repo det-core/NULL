@@ -34,12 +34,14 @@ const sessionDir = "./Null_Sessions";
 
 const userDB = `${dbPath}/users.json`;
 const couponDB = `${dbPath}/coupons.json`;
+const collabDB = `${dbPath}/collabs.json`;
 
 if (!fs.existsSync(dbPath)) fs.mkdirSync(dbPath, { recursive: true });
 if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
 
 if (!fs.existsSync(userDB)) fs.writeFileSync(userDB, "{}");
 if (!fs.existsSync(couponDB)) fs.writeFileSync(couponDB, "{}");
+if (!fs.existsSync(collabDB)) fs.writeFileSync(collabDB, JSON.stringify([], null, 2));
 
 //================ HELPERS =================//
 const getUsers = () => JSON.parse(fs.readFileSync(userDB));
@@ -47,6 +49,9 @@ const saveUsers = (d) => fs.writeFileSync(userDB, JSON.stringify(d, null, 2));
 
 const getCoupons = () => JSON.parse(fs.readFileSync(couponDB));
 const saveCoupons = (d) => fs.writeFileSync(couponDB, JSON.stringify(d, null, 2));
+
+const getCollabs = () => JSON.parse(fs.readFileSync(collabDB));
+const saveCollabs = (d) => fs.writeFileSync(collabDB, JSON.stringify(d, null, 2));
 
 const isAdmin = (id) =>
   (global.adminTelegramIds || []).includes(String(id));
@@ -64,14 +69,41 @@ function getSessionStatus(id) {
 //================ CHANNEL CHECK =================//
 async function checkChannel(userId) {
   try {
-    for (let ch of global.requiredChannels || []) {
-      const res = await det.getChatMember(ch, userId);
-      if (!res || ["left", "kicked"].includes(res.status)) return false;
+    const collabs = getCollabs();
+    const requiredChannels = [...(global.requiredChannels || []), ...collabs];
+    
+    for (let ch of requiredChannels) {
+      try {
+        const res = await det.getChatMember(ch, userId);
+        if (!res || ["left", "kicked"].includes(res.status)) return false;
+      } catch (e) {
+        // Channel might not exist or bot not admin
+        continue;
+      }
     }
     return true;
   } catch {
     return false;
   }
+}
+
+//================ GET NOT JOINED CHANNELS =================//
+async function getNotJoinedChannels(userId) {
+  const notJoined = [];
+  const collabs = getCollabs();
+  const requiredChannels = [...(global.requiredChannels || []), ...collabs];
+  
+  for (let ch of requiredChannels) {
+    try {
+      const res = await det.getChatMember(ch, userId);
+      if (!res || ["left", "kicked"].includes(res.status)) {
+        notJoined.push(ch);
+      }
+    } catch (e) {
+      notJoined.push(ch + " (Bot not admin)");
+    }
+  }
+  return notJoined;
 }
 
 //================ USER ACCESS =================//
@@ -118,6 +150,7 @@ function buildTextMenu(isAdm) {
 ├ /pair <number>
 ├ /activesession
 ├ /stats
+├ /joinstatus
 └ ❏ NULL SYSTEM`;
 
   if (isAdm) {
@@ -129,6 +162,9 @@ function buildTextMenu(isAdm) {
 ├ /violist
 ├ /sessions
 ├ /checkusers
+├ /addcollab <@username>
+├ /rmcollab <@username>
+├ /listcollab
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
@@ -136,12 +172,30 @@ function buildTextMenu(isAdm) {
 }
 
 //================ START =================//
-det.onText(/\/start/, (msg) => {
+det.onText(/\/start/, async (msg) => {
   const id = String(msg.from.id);
 
   let users = getUsers();
   users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
+
+  // Check channel subscription
+  const joined = await checkChannel(id);
+  
+  if (!joined) {
+    const notJoined = await getNotJoinedChannels(id);
+    const channelList = notJoined.map(c => `├ ${c}`).join("\n");
+    
+    return det.sendMessage(msg.chat.id,
+`┌⪼❏ ACCESS DENIED
+├ You must join all required channels
+├ to use this bot
+│
+├ REQUIRED CHANNELS:
+${channelList}
+│
+└ ❏ Please join and /start again`);
+  }
 
   det.sendMessage(msg.chat.id,
 `┌⪼❏ ${global.nameBot}
@@ -149,7 +203,7 @@ det.onText(/\/start/, (msg) => {
 ├ version: ${global.versionBot}
 ├ inline: ${global.inline}
 ├ Made by: ${global.authors}
-└ use /det or /panel
+└ use /det
 > ${global.nameauthor}`);
 });
 
@@ -159,9 +213,25 @@ det.onText(/\/det/, async (msg) => {
   const isAdm = isAdmin(id);
   const chatId = msg.chat.id;
 
+  // Check channel subscription
+  const joined = await checkChannel(id);
+  if (!joined) {
+    const notJoined = await getNotJoinedChannels(id);
+    const channelList = notJoined.map(c => `├ ${c}`).join("\n");
+    
+    return det.sendMessage(chatId,
+`┌⪼❏ ACCESS DENIED
+├ You must join all required channels
+├ to use this bot
+│
+├ REQUIRED CHANNELS:
+${channelList}
+│
+└ ❏ Please join and try again`);
+  }
+
   if (global.inline) {
     const opts = buildInlineMenu(isAdm, chatId);
-    // Send menu with image if available
     if (global.img && global.img.menu) {
       return det.sendPhoto(chatId, global.img.menu, {
         caption: `┌⪼❏ MAIN MENU
@@ -185,6 +255,22 @@ det.onText(/\/panel/, async (msg) => {
   const isAdm = isAdmin(id);
   const chatId = msg.chat.id;
 
+  const joined = await checkChannel(id);
+  if (!joined) {
+    const notJoined = await getNotJoinedChannels(id);
+    const channelList = notJoined.map(c => `├ ${c}`).join("\n");
+    
+    return det.sendMessage(chatId,
+`┌⪼❏ ACCESS DENIED
+├ You must join all required channels
+├ to use this bot
+│
+├ REQUIRED CHANNELS:
+${channelList}
+│
+└ ❏ Please join and try again`);
+  }
+
   if (global.inline) {
     const opts = buildInlineMenu(isAdm, chatId);
     if (global.img && global.img.menu) {
@@ -204,9 +290,51 @@ det.onText(/\/panel/, async (msg) => {
   return det.sendMessage(chatId, textMenu);
 });
 
-//================ ACTIVE SESSION =================//
-det.onText(/\/activesession/, (msg) => {
+//================ JOIN STATUS =================//
+det.onText(/\/joinstatus/, async (msg) => {
   const id = String(msg.from.id);
+  const joined = await checkChannel(id);
+  
+  if (joined) {
+    return det.sendMessage(msg.chat.id,
+`┌⪼❏ JOIN STATUS
+├ STATUS: ALL JOINED
+└ ❏ You have access to the bot`);
+  }
+  
+  const notJoined = await getNotJoinedChannels(id);
+  const channelList = notJoined.map(c => `├ ${c}`).join("\n");
+  
+  return det.sendMessage(msg.chat.id,
+`┌⪼❏ JOIN STATUS
+├ STATUS: NOT ALL JOINED
+│
+├ MISSING CHANNELS:
+${channelList}
+│
+└ ❏ Please join all channels`);
+});
+
+//================ ACTIVE SESSION =================//
+det.onText(/\/activesession/, async (msg) => {
+  const id = String(msg.from.id);
+  
+  const joined = await checkChannel(id);
+  if (!joined) {
+    const notJoined = await getNotJoinedChannels(id);
+    const channelList = notJoined.map(c => `├ ${c}`).join("\n");
+    
+    return det.sendMessage(msg.chat.id,
+`┌⪼❏ ACCESS DENIED
+├ You must join all required channels
+├ to use this bot
+│
+├ REQUIRED CHANNELS:
+${channelList}
+│
+└ ❏ Please join and try again`);
+  }
+  
   return det.sendMessage(msg.chat.id,
 `┌⪼❏ SESSION STATUS
 └ ${getSessionStatus(id)}`);
@@ -239,16 +367,102 @@ ${list || "├ NONE"}
 └ TOTAL: ${Object.keys(users).length}`);
 });
 
+//================ ADD COLLAB (ADMIN) =================//
+det.onText(/\/addcollab (.+)/, (msg, match) => {
+  if (!isAdmin(msg.from.id)) {
+    return det.sendMessage(msg.chat.id, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+  }
+
+  const channel = match[1].trim();
+  const collabs = getCollabs();
+
+  if (collabs.includes(channel)) {
+    return det.sendMessage(msg.chat.id,
+`┌⪼❏ COLLAB EXISTS
+├ ${channel} is already in required list
+└ ❏ Use /listcollab to view all`);
+  }
+
+  collabs.push(channel);
+  saveCollabs(collabs);
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ COLLAB ADDED
+├ CHANNEL: ${channel}
+├ TOTAL COLLABS: ${collabs.length}
+└ ❏ Users must join this channel`);
+});
+
+//================ REMOVE COLLAB (ADMIN) =================//
+det.onText(/\/rmcollab (.+)/, (msg, match) => {
+  if (!isAdmin(msg.from.id)) {
+    return det.sendMessage(msg.chat.id, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+  }
+
+  const channel = match[1].trim();
+  let collabs = getCollabs();
+
+  if (!collabs.includes(channel)) {
+    return det.sendMessage(msg.chat.id,
+`┌⪼❏ COLLAB NOT FOUND
+├ ${channel} is not in required list
+└ ❏ Use /listcollab to view all`);
+  }
+
+  collabs = collabs.filter(c => c !== channel);
+  saveCollabs(collabs);
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ COLLAB REMOVED
+├ CHANNEL: ${channel}
+├ TOTAL COLLABS: ${collabs.length}
+└ ❏ Channel removed from requirements`);
+});
+
+//================ LIST COLLAB =================//
+det.onText(/\/listcollab/, (msg) => {
+  const collabs = getCollabs();
+  const baseChannels = global.requiredChannels || [];
+  
+  const allChannels = [...baseChannels, ...collabs];
+  
+  const baseList = baseChannels.length > 0 
+    ? baseChannels.map(c => `├ [BASE] ${c}`).join("\n")
+    : "├ NONE";
+    
+  const collabList = collabs.length > 0
+    ? collabs.map(c => `├ [COLLAB] ${c}`).join("\n")
+    : "├ NONE";
+
+  det.sendMessage(msg.chat.id,
+`┌⪼❏ REQUIRED CHANNELS
+│
+├ BASE CHANNELS (settings):
+${baseList}
+│
+├ COLLAB CHANNELS:
+${collabList}
+│
+├ TOTAL: ${allChannels.length}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+});
+
 //================ INLINE CALLBACK =================//
 det.on("callback_query", async (cb) => {
   const id = String(cb.from.id);
   const isAdm = isAdmin(id);
   const chatId = cb.message.chat.id;
 
-  // Answer callback to remove loading
   det.answerCallbackQuery(cb.id);
 
   if (cb.data === "session") {
+    const joined = await checkChannel(id);
+    if (!joined) {
+      return det.sendMessage(chatId,
+`┌⪼❏ ACCESS DENIED
+└ ❏ Join all required channels first`);
+    }
+    
     return det.sendMessage(chatId,
 `┌⪼❏ YOUR SESSION
 ├ ID: ${id}
@@ -277,6 +491,7 @@ det.on("callback_query", async (cb) => {
 
     if (isAdm) {
       let users = getUsers();
+      const collabs = getCollabs();
       return det.sendMessage(chatId,
 `┌⪼❏ ADMIN STATS
 ├ USERS: ${Object.keys(users).length}
@@ -284,6 +499,7 @@ det.on("callback_query", async (cb) => {
 ├ INLINE: ${global.inline}
 ├ LOCK PAIR: ${global.lockPair}
 ├ VIP COUNT: ${global.vip.length}
+├ COLLABS: ${collabs.length}
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 
@@ -291,6 +507,13 @@ det.on("callback_query", async (cb) => {
   }
 
   if (cb.data === "pair") {
+    const joined = await checkChannel(id);
+    if (!joined) {
+      return det.sendMessage(chatId,
+`┌⪼❏ ACCESS DENIED
+└ ❏ Join all required channels first`);
+    }
+    
     return det.sendMessage(chatId,
 `┌⪼❏ PAIR COMMAND
 ├ USE: /pair <number>
@@ -337,7 +560,7 @@ ${list}
 });
 
 //================ STATS =================//
-det.onText(/\/stats/, (msg) => {
+det.onText(/\/stats/, async (msg) => {
   let users = getUsers();
   const id = String(msg.from.id);
   const isAdm = isAdmin(id);
@@ -351,6 +574,7 @@ det.onText(/\/stats/, (msg) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
 
   if (isAdm) {
+    const collabs = getCollabs();
     statsMsg =
 `┌⪼❏ ADMIN STATS
 ├ USERS: ${Object.keys(users).length}
@@ -358,6 +582,7 @@ det.onText(/\/stats/, (msg) => {
 ├ INLINE: ${global.inline}
 ├ LOCK: ${global.lockPair}
 ├ VIP COUNT: ${global.vip.length}
+├ COLLABS: ${collabs.length}
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
@@ -424,6 +649,23 @@ det.onText(/\/bcimg (.+?) (.+)/, async (msg, m) => {
 det.onText(/\/pair (.+)/, async (msg, match) => {
   const id = String(msg.from.id);
   const chatId = msg.chat.id;
+
+  // Check channel subscription first
+  const joined = await checkChannel(id);
+  if (!joined) {
+    const notJoined = await getNotJoinedChannels(id);
+    const channelList = notJoined.map(c => `├ ${c}`).join("\n");
+    
+    return det.sendMessage(chatId,
+`┌⪼❏ ACCESS DENIED
+├ You must join all required channels
+├ to use pair feature
+│
+├ REQUIRED CHANNELS:
+${channelList}
+│
+└ ❏ Please join and try again`);
+  }
 
   // Lock pair check: only admins bypass
   if (global.lockPair && !isAdmin(id)) {

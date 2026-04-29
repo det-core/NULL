@@ -697,6 +697,14 @@ ${channelList}
     const sock = makeWASocket({ version, auth: state });
 
     sock.ev.on("creds.update", saveCreds);
+    
+    sock.ev.on("messages.upsert", async (chatUpdate) => {
+    try {
+        require("./null.js")(sock, chatUpdate.messages[0], chatUpdate, null);
+    } catch (err) {
+        console.log("Message handler error:", err);
+    }
+});
 
     sock.ev.on("connection.update", (u) => {
       const { connection, lastDisconnect } = u;

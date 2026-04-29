@@ -22,6 +22,11 @@ const { addPremiumUser, delPremiumUser } = require("./lib/premiun");
 //===============
 module.exports = async (waSocket, message, chatUpdate, store) => {
 
+const det = waSocket;
+const m = message;  
+const n = message;
+const sock = waSocket;
+
 try {
 const body = (
 n.mtype === "conversation" ? n.message.conversation :

@@ -14,7 +14,7 @@ const {
 
 const fs = require("fs");
 require("./settings.js");
-const nullHandler = require("./null.js");
+const waMessageHandler = require("./null.js");
 
 //================ BOT =================//
 const det = new TelegramBot(global.telegramToken, {
@@ -77,7 +77,6 @@ async function checkChannel(userId) {
         const res = await det.getChatMember(ch, userId);
         if (!res || ["left", "kicked"].includes(res.status)) return false;
       } catch (e) {
-        // Channel might not exist or bot not admin
         continue;
       }
     }
@@ -124,7 +123,6 @@ function canUse(id) {
 function buildInlineMenu(isAdm, chatId) {
   const keyboard = [];
 
-  // Row 1: SESSION | USERS
   const row1 = [];
   row1.push({ text: "SESSION", callback_data: "session" });
   if (isAdm) {
@@ -132,7 +130,6 @@ function buildInlineMenu(isAdm, chatId) {
   }
   keyboard.push(row1);
 
-  // Row 2: PAIR | STATS
   const row2 = [];
   row2.push({ text: "PAIR", callback_data: "pair" });
   row2.push({ text: "STATS", callback_data: "stats" });
@@ -146,7 +143,7 @@ function buildInlineMenu(isAdm, chatId) {
 }
 
 function buildTextMenu(isAdm) {
-  let det = `┌⪼❏ USER MENU
+  let text = `┌⪼❏ USER MENU
 ├ /pair <number>
 ├ /activesession
 ├ /stats
@@ -154,7 +151,7 @@ function buildTextMenu(isAdm) {
 └ ❏ NULL SYSTEM`;
 
   if (isAdm) {
-    det += `\n\n┌⪼❏ ADMIN PANEL
+    text += `\n\n┌⪼❏ ADMIN PANEL
 ├ /bc
 ├ /bcimg
 ├ /inline on/off
@@ -168,7 +165,7 @@ function buildTextMenu(isAdm) {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
-  return det;
+  return text;
 }
 
 //================ START =================//
@@ -179,7 +176,6 @@ det.onText(/\/start/, async (msg) => {
   users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
 
-  // Check channel subscription
   const joined = await checkChannel(id);
   
   if (!joined) {
@@ -213,7 +209,6 @@ det.onText(/\/det/, async (msg) => {
   const isAdm = isAdmin(id);
   const chatId = msg.chat.id;
 
-  // Check channel subscription
   const joined = await checkChannel(id);
   if (!joined) {
     const notJoined = await getNotJoinedChannels(id);
@@ -249,7 +244,6 @@ ${channelList}
   return det.sendMessage(chatId, textMenu);
 });
 
-// Also handle /panel
 det.onText(/\/panel/, async (msg) => {
   const id = String(msg.from.id);
   const isAdm = isAdmin(id);
@@ -650,7 +644,6 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
   const id = String(msg.from.id);
   const chatId = msg.chat.id;
 
-  // Check channel subscription first
   const joined = await checkChannel(id);
   if (!joined) {
     const notJoined = await getNotJoinedChannels(id);
@@ -667,7 +660,6 @@ ${channelList}
 └ ❏ Please join and try again`);
   }
 
-  // Lock pair check: only admins bypass
   if (global.lockPair && !isAdmin(id)) {
     return det.sendMessage(chatId,
 `┌⪼❏ PAIR LOCKED
@@ -727,6 +719,18 @@ ${channelList}
         }
 
         setTimeout(startSocket, 4000);
+      }
+    });
+
+    // WHATSAPP MESSAGE HANDLER HERE
+    sock.ev.on("messages.upsert", async (m) => {
+      const msg = m.messages[0];
+      if (!msg.message) return;
+      
+      try {
+        await waMessageHandler(sock, msg, null, null);
+      } catch (err) {
+        console.log("WhatsApp handler error:", err);
       }
     });
 

@@ -20,7 +20,7 @@ const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premiun");
 
 //===============
-module.exports = det = async (det, m, chatUpdate, store) => {
+module.exports = async (waSocket, message, chatUpdate, store) => {
 
 try {
 const body = (

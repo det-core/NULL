@@ -14,7 +14,7 @@ const {
 
 const fs = require("fs");
 require("./settings.js");
-const waMessageHandler = require("./null.js");
+const nullHandler = require("./null.js");
 
 //================ BOT =================//
 const det = new TelegramBot(global.telegramToken, {
@@ -77,6 +77,7 @@ async function checkChannel(userId) {
         const res = await det.getChatMember(ch, userId);
         if (!res || ["left", "kicked"].includes(res.status)) return false;
       } catch (e) {
+        // Channel might not exist or bot not admin
         continue;
       }
     }
@@ -123,6 +124,7 @@ function canUse(id) {
 function buildInlineMenu(isAdm, chatId) {
   const keyboard = [];
 
+  // Row 1: SESSION | USERS
   const row1 = [];
   row1.push({ text: "SESSION", callback_data: "session" });
   if (isAdm) {
@@ -130,6 +132,7 @@ function buildInlineMenu(isAdm, chatId) {
   }
   keyboard.push(row1);
 
+  // Row 2: PAIR | STATS
   const row2 = [];
   row2.push({ text: "PAIR", callback_data: "pair" });
   row2.push({ text: "STATS", callback_data: "stats" });
@@ -143,7 +146,7 @@ function buildInlineMenu(isAdm, chatId) {
 }
 
 function buildTextMenu(isAdm) {
-  let text = `┌⪼❏ USER MENU
+  let det = `┌⪼❏ USER MENU
 ├ /pair <number>
 ├ /activesession
 ├ /stats
@@ -151,7 +154,7 @@ function buildTextMenu(isAdm) {
 └ ❏ NULL SYSTEM`;
 
   if (isAdm) {
-    text += `\n\n┌⪼❏ ADMIN PANEL
+    det += `\n\n┌⪼❏ ADMIN PANEL
 ├ /bc
 ├ /bcimg
 ├ /inline on/off
@@ -165,7 +168,7 @@ function buildTextMenu(isAdm) {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
-  return text;
+  return det;
 }
 
 //================ START =================//
@@ -176,6 +179,7 @@ det.onText(/\/start/, async (msg) => {
   users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
 
+  // Check channel subscription
   const joined = await checkChannel(id);
   
   if (!joined) {
@@ -199,7 +203,7 @@ ${channelList}
 ├ version: ${global.versionBot}
 ├ inline: ${global.inline}
 ├ Made by: ${global.authors}
-└ use /det
+└ use /det or /panel
 > ${global.nameauthor}`);
 });
 
@@ -209,6 +213,7 @@ det.onText(/\/det/, async (msg) => {
   const isAdm = isAdmin(id);
   const chatId = msg.chat.id;
 
+  // Check channel subscription
   const joined = await checkChannel(id);
   if (!joined) {
     const notJoined = await getNotJoinedChannels(id);
@@ -244,6 +249,7 @@ ${channelList}
   return det.sendMessage(chatId, textMenu);
 });
 
+// Also handle /panel
 det.onText(/\/panel/, async (msg) => {
   const id = String(msg.from.id);
   const isAdm = isAdmin(id);
@@ -644,6 +650,7 @@ det.onText(/\/pair (.+)/, async (msg, match) => {
   const id = String(msg.from.id);
   const chatId = msg.chat.id;
 
+  // Check channel subscription first
   const joined = await checkChannel(id);
   if (!joined) {
     const notJoined = await getNotJoinedChannels(id);
@@ -660,6 +667,7 @@ ${channelList}
 └ ❏ Please join and try again`);
   }
 
+  // Lock pair check: only admins bypass
   if (global.lockPair && !isAdmin(id)) {
     return det.sendMessage(chatId,
 `┌⪼❏ PAIR LOCKED
@@ -686,30 +694,18 @@ ${channelList}
     const { state, saveCreds } = await useMultiFileAuthState(userPath);
     const { version } = await fetchLatestBaileysVersion();
 
-    // FIXED: Added connection stability options
-    const sock = makeWASocket({ 
-      version, 
-      auth: state,
-      connectTimeoutMs: 60000,
-      defaultQueryTimeoutMs: 60000,
-      keepAliveIntervalMs: 30000,
-      generateHighQualityLinkPreview: false,
-      patchMessageBeforeSending: (message) => message,
-      syncFullHistory: false,
-      markOnlineOnConnect: false,
-      fireInitQueries: false
-    });
+    const sock = makeWASocket({ version, auth: state });
 
     sock.ev.on("creds.update", saveCreds);
 
     sock.ev.on("connection.update", (u) => {
       const { connection, lastDisconnect } = u;
-      const statusCode = lastDisconnect?.error?.output?.statusCode;
-      const errorMsg = lastDisconnect?.error?.message || "";
+
+      const code = lastDisconnect?.error?.output?.statusCode;
+      const err = lastDisconnect?.error?.message || "";
 
       if (connection === "open") {
         global.sessionState[id] = "ACTIVE";
-        console.log(`✅ WhatsApp connected for ${id}`);
         det.sendMessage(chatId,
 `┌⪼❏ CONNECTION
 ├ STATUS: ACTIVE
@@ -718,50 +714,31 @@ ${channelList}
 
       if (connection === "close") {
         global.sessionState[id] = "OFFLINE";
-        console.log(`❌ WhatsApp disconnected for ${id}: ${errorMsg}`);
-        
-        // Better reconnection logic
-        if (statusCode === 408 || statusCode === 428 || errorMsg.includes("Timed Out") || errorMsg.includes("Connection")) {
-          console.log("🔄 Reconnecting in 5 seconds...");
-          setTimeout(startSocket, 5000);
-        } else {
-          console.log("🔄 Reconnecting in 3 seconds...");
-          setTimeout(startSocket, 3000);
-        }
-      }
-    });
 
-    // WHATSAPP MESSAGE HANDLER
-    sock.ev.on("messages.upsert", async (m) => {
-      const msg = m.messages[0];
-      if (!msg.message) return;
-      
-      try {
-        await waMessageHandler(sock, msg, null, null);
-      } catch (err) {
-        console.log("WhatsApp handler error:", err);
+        if (
+          err.includes("PreKeyError") ||
+          err.includes("Timed Out") ||
+          code === 515 ||
+          code === 408
+        ) {
+          global.sessionState[id] = "REPAIRING";
+          setTimeout(startSocket, 3000);
+          return;
+        }
+
+        setTimeout(startSocket, 4000);
       }
     });
 
     if (!sock.authState.creds.registered) {
-      // Add delay before requesting code
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      try {
+      setTimeout(async () => {
         const code = await sock.requestPairingCode(number);
         det.sendMessage(chatId,
 `┌⪼❏ PAIR CODE
 ├ NUMBER: ${number}
 ├ CODE: ${code}
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
-      } catch (err) {
-        console.error("Pairing error:", err);
-        det.sendMessage(chatId,
-`┌⪼❏ PAIR ERROR
-├ Could not generate code
-├ Error: ${err.message || "Connection issue"}
-└ ❏ Please try again later`);
-      }
+      }, 2000);
     }
   }
 

@@ -686,18 +686,30 @@ ${channelList}
     const { state, saveCreds } = await useMultiFileAuthState(userPath);
     const { version } = await fetchLatestBaileysVersion();
 
-    const sock = makeWASocket({ version, auth: state });
+    // FIXED: Added connection stability options
+    const sock = makeWASocket({ 
+      version, 
+      auth: state,
+      connectTimeoutMs: 60000,
+      defaultQueryTimeoutMs: 60000,
+      keepAliveIntervalMs: 30000,
+      generateHighQualityLinkPreview: false,
+      patchMessageBeforeSending: (message) => message,
+      syncFullHistory: false,
+      markOnlineOnConnect: false,
+      fireInitQueries: false
+    });
 
     sock.ev.on("creds.update", saveCreds);
 
     sock.ev.on("connection.update", (u) => {
       const { connection, lastDisconnect } = u;
-
-      const code = lastDisconnect?.error?.output?.statusCode;
-      const err = lastDisconnect?.error?.message || "";
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
+      const errorMsg = lastDisconnect?.error?.message || "";
 
       if (connection === "open") {
         global.sessionState[id] = "ACTIVE";
+        console.log(`✅ WhatsApp connected for ${id}`);
         det.sendMessage(chatId,
 `┌⪼❏ CONNECTION
 ├ STATUS: ACTIVE
@@ -706,23 +718,20 @@ ${channelList}
 
       if (connection === "close") {
         global.sessionState[id] = "OFFLINE";
-
-        if (
-          err.includes("PreKeyError") ||
-          err.includes("Timed Out") ||
-          code === 515 ||
-          code === 408
-        ) {
-          global.sessionState[id] = "REPAIRING";
+        console.log(`❌ WhatsApp disconnected for ${id}: ${errorMsg}`);
+        
+        // Better reconnection logic
+        if (statusCode === 408 || statusCode === 428 || errorMsg.includes("Timed Out") || errorMsg.includes("Connection")) {
+          console.log("🔄 Reconnecting in 5 seconds...");
+          setTimeout(startSocket, 5000);
+        } else {
+          console.log("🔄 Reconnecting in 3 seconds...");
           setTimeout(startSocket, 3000);
-          return;
         }
-
-        setTimeout(startSocket, 4000);
       }
     });
 
-    // WHATSAPP MESSAGE HANDLER HERE
+    // WHATSAPP MESSAGE HANDLER
     sock.ev.on("messages.upsert", async (m) => {
       const msg = m.messages[0];
       if (!msg.message) return;
@@ -735,14 +744,24 @@ ${channelList}
     });
 
     if (!sock.authState.creds.registered) {
-      setTimeout(async () => {
+      // Add delay before requesting code
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      try {
         const code = await sock.requestPairingCode(number);
         det.sendMessage(chatId,
 `┌⪼❏ PAIR CODE
 ├ NUMBER: ${number}
 ├ CODE: ${code}
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
-      }, 2000);
+      } catch (err) {
+        console.error("Pairing error:", err);
+        det.sendMessage(chatId,
+`┌⪼❏ PAIR ERROR
+├ Could not generate code
+├ Error: ${err.message || "Connection issue"}
+└ ❏ Please try again later`);
+      }
     }
   }
 

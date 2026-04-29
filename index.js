@@ -92,7 +92,7 @@ det.onText(/\/start/, async (msg) => {
 
   det.sendPhoto(msg.chat.id, global.img.menu, {
     caption:
-`┌⪼❏ ${global.namebot}
+`┌⪼❏ ${global.nameBot}
 ├◆ version: ${global.versionBot}
 ├◆ Developer: ${global.dev}
 └ ❏ Use /det`

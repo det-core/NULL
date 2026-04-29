@@ -14,16 +14,16 @@ global.linkOwner = "https://wa.me/2347030626048"
 global.linkch = "https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S"
 global.owner = ["2347030626048"] 
 global.dev = '@knoxprime'
-global.ownerTelegramId  = '7711882574'
-global.adminTelegramIds = ['7711882574']
+global.ownerTelegramId  = '8151155337'
+global.adminTelegramIds = ['8151155337']
 global.requiredChannels = ['@darkemptech']
-global.telegramToken = '8785555567:AAG4fYV5kLZ280SNOIoF4KdSryPmIvVRbBw'
+global.telegramToken = "8785555567:AAG4fYV5kLZ280SNOIoF4KdSryPmIvVRbBw"
 global.resellerTelegramIds = []
 global.nameowner = "ꪶ ¡ϻ Nᴜʟʟ ꫂ" 
 global.author = ["2347030626048"] 
 global.nameauthor = "ꪶ ¡ϻ Nᴜʟʟ ꫂ" 
 global.namebot = "Nᴜʟʟ Cʀᴀsʜ V𝟷" 
-global.bot = {
+global.det = {
   newsletterJid: 
     "120363419855570475@newsletter",
 };

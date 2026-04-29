@@ -114,10 +114,22 @@ function buildInlineMenu(isAdm, chatId) {
 }
 
 function buildTextMenu(isAdm) {
-  let det = `┌⪼❏ USER MENU\n├ /pair <number>\n├ /activesession\n├ /stats\n└ ❏ NULL SYSTEM`;
+  let det = `┌⪼❏ USER MENU
+├ /pair <number>
+├ /activesession
+├ /stats
+└ ❏ NULL SYSTEM`;
 
   if (isAdm) {
-    det += `\n\n┌⪼❏ ADMIN PANEL\n├ /bc\n├ /bcimg\n├ /inline on/off\n├ /lockpair on/off\n├ /violist\n├ /sessions\n├ /checkusers\n└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+    det += `\n\n┌⪼❏ ADMIN PANEL
+├ /bc
+├ /bcimg
+├ /inline on/off
+├ /lockpair on/off
+├ /violist
+├ /sessions
+├ /checkusers
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
   return det;
@@ -133,26 +145,63 @@ det.onText(/\/start/, (msg) => {
 
   det.sendMessage(msg.chat.id,
 `┌⪼❏ ${global.nameBot}
-├◆ dev: ${global.dev}
-├◆ version: ${global.versionBot}
-├◆ inline: ${global.inline}
-├◆ Made by: ${global.authors}
-└ ❏ use /det
+├ dev: ${global.dev}
+├ version: ${global.versionBot}
+├ inline: ${global.inline}
+├ Made by: ${global.authors}
+└ use /det or /panel
 > ${global.nameauthor}`);
 });
 
-//================ MENU =================//
-det.onText(/\/det|\/panel/, (msg) => {
+//================ MENU WITH IMAGE =================//
+det.onText(/\/det/, async (msg) => {
   const id = String(msg.from.id);
   const isAdm = isAdmin(id);
+  const chatId = msg.chat.id;
 
   if (global.inline) {
-    const opts = buildInlineMenu(isAdm, msg.chat.id);
-    return det.sendMessage(msg.chat.id, "┌⪼❏ MAIN MENU", opts);
+    const opts = buildInlineMenu(isAdm, chatId);
+    // Send menu with image if available
+    if (global.img && global.img.menu) {
+      return det.sendPhoto(chatId, global.img.menu, {
+        caption: `┌⪼❏ MAIN MENU
+├ ${global.nameBot}
+├ dev: ${global.dev}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+        ...opts
+      });
+    } else {
+      return det.sendMessage(chatId, "┌⪼❏ MAIN MENU", opts);
+    }
   }
 
-  const det = buildTextMenu(isAdm);
-  return det.sendMessage(msg.chat.id, det);
+  const textMenu = buildTextMenu(isAdm);
+  return det.sendMessage(chatId, textMenu);
+});
+
+// Also handle /panel
+det.onText(/\/panel/, async (msg) => {
+  const id = String(msg.from.id);
+  const isAdm = isAdmin(id);
+  const chatId = msg.chat.id;
+
+  if (global.inline) {
+    const opts = buildInlineMenu(isAdm, chatId);
+    if (global.img && global.img.menu) {
+      return det.sendPhoto(chatId, global.img.menu, {
+        caption: `┌⪼❏ MAIN MENU
+├ ${global.nameBot}
+├ dev: ${global.dev}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+        ...opts
+      });
+    } else {
+      return det.sendMessage(chatId, "┌⪼❏ MAIN MENU", opts);
+    }
+  }
+
+  const textMenu = buildTextMenu(isAdm);
+  return det.sendMessage(chatId, textMenu);
 });
 
 //================ ACTIVE SESSION =================//

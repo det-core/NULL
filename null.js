@@ -119,7 +119,7 @@ async function doneress () {
   
   det.sendMessage(n.chat, {
     video: {
-      url: 'https://files.catbox.moe/3uhyy5.mp4'' 
+      url: 'https://files.catbox.moe/3uhyy5.mp4'
     },
     caption: ressdone,
     gifPlayback: true,  

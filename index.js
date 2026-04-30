@@ -71,12 +71,14 @@ async function checkChannel(userId) {
     const collabs = getCollabs();
     const requiredChannels = [...(global.requiredChannels || []), ...collabs];
     
+    if (requiredChannels.length === 0) return true;
+    
     for (let ch of requiredChannels) {
       try {
         const res = await det.getChatMember(ch, userId);
         if (!res || ["left", "kicked"].includes(res.status)) return false;
       } catch (e) {
-        continue;
+        return false;
       }
     }
     return true;
@@ -141,7 +143,7 @@ function buildInlineMenu(isAdm, chatId) {
 }
 
 function buildTextMenu(isAdm) {
-  let det = `┌⪼❏ USER MENU
+  let menu = `┌⪼❏ USER MENU
 ├ /pair <number>
 ├ /activesession
 ├ /stats
@@ -149,7 +151,7 @@ function buildTextMenu(isAdm) {
 └ ❏ NULL SYSTEM`;
 
   if (isAdm) {
-    det += `\n\n┌⪼❏ ADMIN PANEL
+    menu += `\n\n┌⪼❏ ADMIN PANEL
 ├ /bc
 ├ /bcimg
 ├ /inline on/off
@@ -163,7 +165,7 @@ function buildTextMenu(isAdm) {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
   }
 
-  return det;
+  return menu;
 }
 
 //================ START COMMAND =================//
@@ -306,6 +308,32 @@ det.onText(/\/joinstatus/, async (msg) => {
 ${channelList}
 │
 └ ❏ Please join all channels`);
+});
+
+//================ TEST FORCE JOIN (ADMIN) =================//
+det.onText(/\/testjoin/, async (msg) => {
+  if (!isAdmin(msg.from.id)) return;
+
+  try {
+    const botInfo = await det.getMe();
+    let report = `┌⪼❏ FORCE JOIN TEST\n│\n`;
+    
+    const allChannels = [...(global.requiredChannels || []), ...getCollabs()];
+    
+    for (let ch of allChannels) {
+      try {
+        const botMember = await det.getChatMember(ch, botInfo.id);
+        report += `├ ✅ ${ch} - Bot: ${botMember.status}\n`;
+      } catch (e) {
+        report += `├ ❌ ${ch} - Bot not in channel\n`;
+      }
+    }
+    
+    report += `│\n└ ❏ Test complete`;
+    det.sendMessage(msg.chat.id, report);
+  } catch (e) {
+    det.sendMessage(msg.chat.id, `┌⪼❏ ERROR\n└ ${e.message}`);
+  }
 });
 
 //================ ACTIVE SESSION =================//
@@ -724,7 +752,8 @@ ${channelList}
       const sock = makeWASocket({ 
         version, 
         auth: state,
-        printQRInTerminal: false
+        printQRInTerminal: false,
+        browser: ["Ubuntu", "Chrome", "20.0.0"]
       });
 
       // STORE SOCKET REFERENCE
@@ -744,7 +773,6 @@ ${channelList}
       sock.ev.on("connection.update", (u) => {
         const { connection, lastDisconnect } = u;
         const code = lastDisconnect?.error?.output?.statusCode;
-        const err = lastDisconnect?.error?.message || "";
 
         if (connection === "open") {
           global.sessionState[id] = "ACTIVE";
@@ -755,17 +783,26 @@ ${channelList}
         }
 
         if (connection === "close") {
-          // CLEAN UP SOCKET REFERENCE
           delete global.activeSockets[id];
 
-          // DON'T RECONNECT ON LOGOUT
+          // STOP RECONNECTING ON AUTH FAILURE
           if (code === 401 || code === 403) {
             global.sessionState[id] = "OFFLINE";
+            det.sendMessage(chatId,
+`┌⪼❏ SESSION EXPIRED
+├ Your session has been logged out
+├ Use /pair to create new session
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
             return;
           }
 
-          global.sessionState[id] = "REPAIRING";
-          setTimeout(startSocket, 4000);
+          // ONLY RECONNECT IF PREVIOUSLY ACTIVE
+          if (global.sessionState[id] === "ACTIVE" || global.sessionState[id] === "REPAIRING") {
+            global.sessionState[id] = "REPAIRING";
+            setTimeout(startSocket, 5000);
+          } else {
+            global.sessionState[id] = "OFFLINE";
+          }
         }
       });
 
@@ -789,7 +826,9 @@ ${channelList}
 ├ Please try again later
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
           }
-        }, 2000);
+        }, 3000);
+      } else {
+        global.sessionState[id] = "CONNECTING";
       }
     } catch (err) {
       console.error("Socket error:", err);

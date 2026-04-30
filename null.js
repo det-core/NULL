@@ -18,7 +18,7 @@ const crypto = require("crypto");
 const util = require('util');
 const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premiun");
-
+const { jidDecode, jidNormalizedUser } = require("@whiskeysockets/baileys");
 //===============
 module.exports = async (waSocket, message, chatUpdate, store) => {
 
@@ -53,7 +53,7 @@ const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns
 ? fatkuns[Object.keys(fatkuns)[1] || Object.keys(fatkuns)[0]]
 : fatkuns;
 //======================
-const botNumber = await det.decodeJid(det.user.id);
+const botNumber = jidNormalizedUser(det.user.id) || jidDecode(det.user.id)?.user + "@s.whatsapp.net";
 const sender = n.sender;
 const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(n.sender);
 const isPremium = [botNumber, ...global.owner, ...premuser.map(user => user.id.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(n.sender);

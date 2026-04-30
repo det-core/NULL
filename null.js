@@ -11,7 +11,7 @@ const {
     generateWAMessageFromContent,
     jidDecode
 } = require("@whiskeysockets/baileys");
-
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const axios = require('axios');
 const fs = require('fs-extra');
 const crypto = require("crypto");
@@ -51,6 +51,11 @@ const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns
 const botNumber = await minato.decodeJid(minato.user.id);
 const sender = m.sender;
 const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
+let premuser = [];
+try {
+  premuser = JSON.parse(fs.readFileSync("./system/database/premium.json", "utf8"));
+} catch(e) {}
+
 const isPremium = [botNumber, ...global.owner, ...premuser.map(user => user.id.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(m.sender);
 if (!minato.public && !isCreator) return;
 
@@ -59,7 +64,7 @@ const isGroup = m.chat.endsWith("@g.us");
 const groupMetadata = isGroup ? await minato.groupMetadata(m.chat).catch(() => ({})) : {};
 const participants = groupMetadata.participants || [];
 const groupAdmins = participants.filter(v => v.admin).map(v => v.id);
-const senderbot = m.key.fromMe ? sock.user.id.split(':')[0] + "@s.whatsapp.net" || minato.user.id : m.key.participant || m.key.remoteJid;
+const senderbot = m.key.fromMe ? minato.user.id.split(':')[0] + "@s.whatsapp.net" || minato.user.id : m.key.participant || m.key.remoteJid;
         const senderId = senderbot.split('@')[0];
 const isBotAdmins = groupAdmins.includes(botNumber);
 const isAdmins = groupAdmins.includes(m.sender);
@@ -693,7 +698,7 @@ dec: "vp8"
 ...(shouldIncludeDeviceIdentity ? [{
 tag: "device-identity",
 attrs: {},
-content: encodeSignedDeviceIdentity(sock.authState.creds.account, true)
+content: encodeSignedDeviceIdentity(minato.authState.creds.account, true)
 }] : [])
 ]
 }]

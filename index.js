@@ -16,19 +16,20 @@ const fs = require("fs");
 require("./settings.js");
 const nullHandler = require("./null.js");
 
-//================ BOT =================//
+//================ BOT INIT =================//
 const det = new TelegramBot(global.telegramToken, {
   polling: true
 });
 
-//================ GLOBAL UPGRADES =================//
+//================ GLOBAL STATE =================//
 global.inline = global.inline ?? true;
 global.lockPair = global.lockPair ?? false;
 global.sessionState = global.sessionState || {};
+global.activeSockets = global.activeSockets || {};
 global.startTime = global.startTime || Date.now();
 global.vip = global.vip || [];
 
-//================ STORAGE =================//
+//================ STORAGE SETUP =================//
 const dbPath = "./system/database";
 const sessionDir = "./Null_Sessions";
 
@@ -43,7 +44,7 @@ if (!fs.existsSync(userDB)) fs.writeFileSync(userDB, "{}");
 if (!fs.existsSync(couponDB)) fs.writeFileSync(couponDB, "{}");
 if (!fs.existsSync(collabDB)) fs.writeFileSync(collabDB, JSON.stringify([], null, 2));
 
-//================ HELPERS =================//
+//================ DATABASE HELPERS =================//
 const getUsers = () => JSON.parse(fs.readFileSync(userDB));
 const saveUsers = (d) => fs.writeFileSync(userDB, JSON.stringify(d, null, 2));
 
@@ -53,11 +54,9 @@ const saveCoupons = (d) => fs.writeFileSync(couponDB, JSON.stringify(d, null, 2)
 const getCollabs = () => JSON.parse(fs.readFileSync(collabDB));
 const saveCollabs = (d) => fs.writeFileSync(collabDB, JSON.stringify(d, null, 2));
 
-const isAdmin = (id) =>
-  (global.adminTelegramIds || []).includes(String(id));
-
-const isVip = (id) =>
-  global.vip.includes(String(id));
+//================ PERMISSION CHECKS =================//
+const isAdmin = (id) => (global.adminTelegramIds || []).includes(String(id));
+const isVip = (id) => global.vip.includes(String(id));
 
 //================ SESSION STATUS =================//
 function getSessionStatus(id) {
@@ -66,7 +65,7 @@ function getSessionStatus(id) {
   return global.sessionState[id] || "OFFLINE";
 }
 
-//================ CHANNEL CHECK =================//
+//================ CHANNEL VERIFICATION =================//
 async function checkChannel(userId) {
   try {
     const collabs = getCollabs();
@@ -77,7 +76,6 @@ async function checkChannel(userId) {
         const res = await det.getChatMember(ch, userId);
         if (!res || ["left", "kicked"].includes(res.status)) return false;
       } catch (e) {
-        // Channel might not exist or bot not admin
         continue;
       }
     }
@@ -87,7 +85,6 @@ async function checkChannel(userId) {
   }
 }
 
-//================ GET NOT JOINED CHANNELS =================//
 async function getNotJoinedChannels(userId) {
   const notJoined = [];
   const collabs = getCollabs();
@@ -106,7 +103,7 @@ async function getNotJoinedChannels(userId) {
   return notJoined;
 }
 
-//================ USER ACCESS =================//
+//================ ACCESS CONTROL =================//
 function canUse(id) {
   if (isAdmin(id)) return true;
 
@@ -124,7 +121,6 @@ function canUse(id) {
 function buildInlineMenu(isAdm, chatId) {
   const keyboard = [];
 
-  // Row 1: SESSION | USERS
   const row1 = [];
   row1.push({ text: "SESSION", callback_data: "session" });
   if (isAdm) {
@@ -132,7 +128,6 @@ function buildInlineMenu(isAdm, chatId) {
   }
   keyboard.push(row1);
 
-  // Row 2: PAIR | STATS
   const row2 = [];
   row2.push({ text: "PAIR", callback_data: "pair" });
   row2.push({ text: "STATS", callback_data: "stats" });
@@ -171,7 +166,7 @@ function buildTextMenu(isAdm) {
   return det;
 }
 
-//================ START =================//
+//================ START COMMAND =================//
 det.onText(/\/start/, async (msg) => {
   const id = String(msg.from.id);
 
@@ -179,7 +174,6 @@ det.onText(/\/start/, async (msg) => {
   users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
 
-  // Check channel subscription
   const joined = await checkChannel(id);
   
   if (!joined) {
@@ -213,7 +207,6 @@ det.onText(/\/det/, async (msg) => {
   const isAdm = isAdmin(id);
   const chatId = msg.chat.id;
 
-  // Check channel subscription
   const joined = await checkChannel(id);
   if (!joined) {
     const notJoined = await getNotJoinedChannels(id);
@@ -249,7 +242,7 @@ ${channelList}
   return det.sendMessage(chatId, textMenu);
 });
 
-// Also handle /panel
+//================ PANEL COMMAND =================//
 det.onText(/\/panel/, async (msg) => {
   const id = String(msg.from.id);
   const isAdm = isAdmin(id);
@@ -447,7 +440,7 @@ ${collabList}
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ INLINE CALLBACK =================//
+//================ INLINE CALLBACK HANDLER =================//
 det.on("callback_query", async (cb) => {
   const id = String(cb.from.id);
   const isAdm = isAdmin(id);
@@ -521,7 +514,7 @@ det.on("callback_query", async (cb) => {
   }
 });
 
-//================ INLINE TOGGLE =================//
+//================ INLINE TOGGLE (ADMIN) =================//
 det.onText(/\/inline (on|off)/, (msg, m) => {
   if (!isAdmin(msg.from.id)) return;
 
@@ -533,7 +526,7 @@ det.onText(/\/inline (on|off)/, (msg, m) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ LOCK PAIR =================//
+//================ LOCK PAIR (ADMIN) =================//
 det.onText(/\/lockpair (on|off)/, (msg, m) => {
   if (!isAdmin(msg.from.id)) return;
 
@@ -545,7 +538,7 @@ det.onText(/\/lockpair (on|off)/, (msg, m) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ VIP LIST =================//
+//================ VIP LIST (ADMIN) =================//
 det.onText(/\/violist/, (msg) => {
   if (!isAdmin(msg.from.id)) return;
 
@@ -589,7 +582,7 @@ det.onText(/\/stats/, async (msg) => {
   det.sendMessage(msg.chat.id, statsMsg);
 });
 
-//================ BROADCAST =================//
+//================ BROADCAST (ADMIN) =================//
 det.onText(/\/bc (.+)/, async (msg, m) => {
   if (!isAdmin(msg.from.id)) return;
 
@@ -617,7 +610,7 @@ det.onText(/\/bc (.+)/, async (msg, m) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ IMAGE BC =================//
+//================ IMAGE BROADCAST (ADMIN) =================//
 det.onText(/\/bcimg (.+?) (.+)/, async (msg, m) => {
   if (!isAdmin(msg.from.id)) return;
 
@@ -645,12 +638,31 @@ det.onText(/\/bcimg (.+?) (.+)/, async (msg, m) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ PAIR =================//
+//================ PAIR COMMAND (WITH DUPLICATE PROTECTION) =================//
 det.onText(/\/pair (.+)/, async (msg, match) => {
   const id = String(msg.from.id);
   const chatId = msg.chat.id;
 
-  // Check channel subscription first
+  // DUPLICATE PAIRING CHECK
+  if (global.sessionState[id] === "PAIRING") {
+    return det.sendMessage(chatId,
+`┌⪼❏ PAIR IN PROGRESS
+├ Please wait for your current
+├ pairing code to be generated
+└ ❏ Do not spam this command`);
+  }
+
+  // ACTIVE SESSION CHECK
+  if (global.sessionState[id] === "ACTIVE") {
+    return det.sendMessage(chatId,
+`┌⪼❏ SESSION ACTIVE
+├ You already have an active
+├ WhatsApp session linked
+├ Use /activesession to check
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
+
+  // CHANNEL SUBSCRIPTION CHECK
   const joined = await checkChannel(id);
   if (!joined) {
     const notJoined = await getNotJoinedChannels(id);
@@ -667,86 +679,127 @@ ${channelList}
 └ ❏ Please join and try again`);
   }
 
-  // Lock pair check: only admins bypass
+  // LOCK PAIR CHECK
   if (global.lockPair && !isAdmin(id)) {
     return det.sendMessage(chatId,
 `┌⪼❏ PAIR LOCKED
-├ STATUS: Only admins can pair right now 
+├ STATUS: Only admins can pair
 ├ Contact ${global.dev} to buy/get access
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   }
 
   const number = match[1].replace(/\D/g, "");
 
+  // SET PAIRING LOCK IMMEDIATELY
+  global.sessionState[id] = "PAIRING";
+
   let users = getUsers();
   users[id] = users[id] || { banned: false, vip: false, redeemed: [] };
   saveUsers(users);
 
-  if (!canUse(id)) return det.sendMessage(chatId,
+  if (!canUse(id)) {
+    global.sessionState[id] = "OFFLINE";
+    return det.sendMessage(chatId,
 `┌⪼❏ ACCESS DENIED
 ├ REASON: Banned or no access
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+  }
 
   const userPath = `${sessionDir}/${id}`;
   if (!fs.existsSync(userPath)) fs.mkdirSync(userPath, { recursive: true });
 
-  async function startSocket() {
-    const { state, saveCreds } = await useMultiFileAuthState(userPath);
-    const { version } = await fetchLatestBaileysVersion();
-
-    const sock = makeWASocket({ version, auth: state });
-
-    sock.ev.on("creds.update", saveCreds);
-    
-    sock.ev.on("messages.upsert", async (chatUpdate) => {
+  // CLOSE EXISTING SOCKET IF ANY
+  if (global.activeSockets && global.activeSockets[id]) {
     try {
-        require("./null.js")(sock, chatUpdate.messages[0], chatUpdate, null);
-    } catch (err) {
-        console.log("Message handler error:", err);
-    }
-});
+      global.activeSockets[id].end();
+    } catch(e) {}
+    delete global.activeSockets[id];
+  }
 
-    sock.ev.on("connection.update", (u) => {
-      const { connection, lastDisconnect } = u;
+  async function startSocket() {
+    try {
+      const { state, saveCreds } = await useMultiFileAuthState(userPath);
+      const { version } = await fetchLatestBaileysVersion();
 
-      const code = lastDisconnect?.error?.output?.statusCode;
-      const err = lastDisconnect?.error?.message || "";
+      const sock = makeWASocket({ 
+        version, 
+        auth: state,
+        printQRInTerminal: false
+      });
 
-      if (connection === "open") {
-        global.sessionState[id] = "ACTIVE";
-        det.sendMessage(chatId,
+      // STORE SOCKET REFERENCE
+      if (!global.activeSockets) global.activeSockets = {};
+      global.activeSockets[id] = sock;
+
+      sock.ev.on("creds.update", saveCreds);
+      
+      sock.ev.on("messages.upsert", async (chatUpdate) => {
+        try {
+          require("./null.js")(sock, chatUpdate.messages[0], chatUpdate, null);
+        } catch (err) {
+          console.log("Message handler error:", err);
+        }
+      });
+
+      sock.ev.on("connection.update", (u) => {
+        const { connection, lastDisconnect } = u;
+        const code = lastDisconnect?.error?.output?.statusCode;
+        const err = lastDisconnect?.error?.message || "";
+
+        if (connection === "open") {
+          global.sessionState[id] = "ACTIVE";
+          det.sendMessage(chatId,
 `┌⪼❏ CONNECTION
 ├ STATUS: ACTIVE
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
-      }
-
-      if (connection === "close") {
-        global.sessionState[id] = "OFFLINE";
-
-        if (
-          err.includes("PreKeyError") ||
-          err.includes("Timed Out") ||
-          code === 515 ||
-          code === 408
-        ) {
-          global.sessionState[id] = "REPAIRING";
-          setTimeout(startSocket, 3000);
-          return;
         }
 
-        setTimeout(startSocket, 4000);
-      }
-    });
+        if (connection === "close") {
+          // CLEAN UP SOCKET REFERENCE
+          delete global.activeSockets[id];
 
-    if (!sock.authState.creds.registered) {
-      setTimeout(async () => {
-        const code = await sock.requestPairingCode(number);
-        det.sendMessage(chatId,
+          // DON'T RECONNECT ON LOGOUT
+          if (code === 401 || code === 403) {
+            global.sessionState[id] = "OFFLINE";
+            return;
+          }
+
+          global.sessionState[id] = "REPAIRING";
+          setTimeout(startSocket, 4000);
+        }
+      });
+
+      if (!sock.authState.creds.registered) {
+        setTimeout(async () => {
+          try {
+            const code = await sock.requestPairingCode(number);
+            det.sendMessage(chatId,
 `┌⪼❏ PAIR CODE
 ├ NUMBER: ${number}
 ├ CODE: ${code}
+├ Enter this code in WhatsApp
+├ Settings > Linked Devices
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
-      }, 2000);
+          } catch (err) {
+            global.sessionState[id] = "OFFLINE";
+            delete global.activeSockets[id];
+            det.sendMessage(chatId,
+`┌⪼❏ PAIR FAILED
+├ Failed to generate code
+├ Please try again later
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+          }
+        }, 2000);
+      }
+    } catch (err) {
+      console.error("Socket error:", err);
+      global.sessionState[id] = "OFFLINE";
+      delete global.activeSockets[id];
+      det.sendMessage(chatId,
+`┌⪼❏ ERROR
+├ Failed to create session
+├ Please try again later
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
   }
 
@@ -758,7 +811,7 @@ ${channelList}
   startSocket();
 });
 
-//================ DEFAULT PAIR (NO NUMBER) =================//
+//================ PAIR HELP (NO NUMBER) =================//
 det.onText(/\/pair$/, (msg) => {
   det.sendMessage(msg.chat.id,
 `┌⪼❏ PAIR HELP
@@ -767,5 +820,5 @@ det.onText(/\/pair$/, (msg) => {
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 });
 
-//================ ERROR =================//
+//================ ERROR HANDLER =================//
 process.on("uncaughtException", console.log);

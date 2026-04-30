@@ -1,23 +1,27 @@
-const { 
-default: baileys, 
-proto, 
-getContentType, 
-generateWAMessage, 
-generateWAMessageFromContent, 
-generateWAMessageContent,
-prepareWAMessageMedia, 
-downloadContentFromMessage
+require("./settings");
+
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason,
+    fetchLatestBaileysVersion,
+    makeCacheableSignalKeyStore,
+    delay,
+    generateForwardMessageContent,
+    generateWAMessageFromContent,
+    jidDecode
 } = require("@whiskeysockets/baileys");
 
 const axios = require('axios');
-const fs = require('fs-extra')
-const crypto = require("crypto")
-const util = require('util')
-const chalk = require('chalk')
+const fs = require('fs-extra');
+const crypto = require("crypto");
+const util = require('util');
+const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premium");
 
 //===============
 module.exports = minato = async (minato, m, chatUpdate, store) => {
+
 try {
 const body = (
 m.mtype === "conversation" ? m.message.conversation :
@@ -75,13 +79,13 @@ const HKQuoted = {
   },
   message: {
     extendedTextMessage: {
-      text: "Nᴜʟʟ Cʀᴀsʜ V𝟷",
-      title: "Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ",
+      text: "𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻",
+      title: "</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅",
       contextInfo: {
         forwardingScore: 999,
         isForwarded: true,
         externalAdReply: {
-          title: "Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ",
+          title: "</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅",
           body: "telegram.com",
           mediaType: 1,
           sourceUrl: "https://telegram.com",
@@ -101,7 +105,7 @@ const reply = (teks) => minato.sendMessage(m.chat, { text: teks }, { quoted: HKQ
 async function doneress () {
   if (!text) throw "Done Response"
   let pepec = args[0].replace(/[^0-9]/g, "")
-  let thumbnailUrl = "https://files.catbox.moe/4w8x5f.png"
+  let thumbnailUrl = "https://files.catbox.moe/s51p6p.jpg"
   let ressdone = `
 ╭──────────────❍
 │ ─( 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝑲𝒊𝒍𝒍𝒆𝒅 𝑻𝒂𝒓𝒈𝒆𝒕 )─
@@ -115,7 +119,7 @@ async function doneress () {
   
   minato.sendMessage(m.chat, {
     video: {
-      url: 'https://files.catbox.moe/3uhyy5.mp4' 
+      url: 'https://files.catbox.moe/k8cy1u.mp4' 
     },
     caption: ressdone,
     gifPlayback: true,  
@@ -123,16 +127,16 @@ async function doneress () {
       mentionedJid: [m.sender],
       externalAdReply: {
         showAdAttribution: false,
-        title: 'Nᴜʟʟ Cʀᴀsʜ V𝟷',
-        body: 'Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ',
-        thumbnailUrl: 'https://files.catbox.moe/4w8x5f.png',
-        sourceUrl: 'https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S',
+        title: '𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻',
+        body: '</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅',
+        thumbnailUrl: 'https://files.catbox.moe/s51p6p.jpg',
+        sourceUrl: 'https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u',
         mediaType: 2,
         renderLargerThumbnail: false
       },
       forwardedNewsletterMessageInfo: {
         newsletterJid: '120363419855570475@newsletter',
-        newsletterName: 'Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ',
+        newsletterName: '</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅',
         serverMessageId: -1
       }
     },
@@ -328,7 +332,7 @@ async function MarkDelayHardInvis(minato, target) {
               tag: "meta",
 
               forwardedAiBotMessageInfo: {
-                botName: "Null Crash",
+                botName: "HOKAGE CRASH",
                 botJid: Math.floor(Math.random() * 99999),
                 creatorName: "ZyX",
               },
@@ -1240,7 +1244,7 @@ async function IosInvisible(minato, target) {
 //============= ( Case commands ) =======\\
 switch (command ) {
 
-case "menu": case "null": {
+case "menu": case "minato": {
 await minato.sendMessage(m.chat, {react: {text: '⌛', key: m.key}})
 await minato.sendMessage(m.chat, {react: {text: '⏳', key: m.key}})
 await minato.sendMessage(m.chat, {react: {text: '✅', key: m.key}})
@@ -1248,8 +1252,8 @@ let Menu = `
 ━━━━━━━━━━━━━━━━━━━━
     ʙᴏᴛ ɪɴғᴏ
 ━━━━━━━━━━━━━━━━━━━━
-𐓷  _ᴄʀᴇᴀᴛᴏʀ: ꪶ ¡ϻ Nᴜʟʟ ꫂ_
-𐓷  _ʙᴏᴛ ɴᴀᴍᴇ: Nᴜʟʟ Cʀᴀsʜ V𝟷_
+𐓷  _ᴄʀᴇᴀᴛᴏʀ: </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅_
+𐓷  _ʙᴏᴛ ɴᴀᴍᴇ: 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻_
 𐓷  _ᴠᴇʀ𝚜ɪᴏɴ: v5.0.0_
 𐓷  _𝚜ᴛᴀᴛᴜᴛ:  ᴀᴄᴛɪғ_
 𐓷  _ʀᴜɴᴛɪᴍᴇ: ${runtime(process.uptime())}_
@@ -1287,9 +1291,9 @@ let Menu = `
 𐓷 _ᴏᴡɴᴇʀ_
 𐓷 _ᴄʟᴇᴀʀʙᴜɢs_ 
 
-> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+> 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`;
 await minato.sendMessage(m.chat, {
-image: { url: "https://files.catbox.moe/4w8x5f.png" },
+image: { url: "https://files.catbox.moe/s51p6p.jpg" },
 caption: Menu
 }, { quoted: HKQuoted });
 }
@@ -1313,7 +1317,8 @@ case "self":{
 // ================= ( Case Owner )=================\\
     case 'owner': {
     const owners = [
-        { name: " ꪶ ¡ϻ Nᴜʟʟ ꫂ", number: "2347030626048" },
+        { name: "ꪶ ¡ϻ Nᴜʟʟ ꫂ", number: "2347030626048" },
+        { name: "CODEBREAKER", number: "2348168666686" },
     ];
     
     const vcards = owners.map(owner => 
@@ -1352,10 +1357,10 @@ break;
 
 case "delay-andro": {
    if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*")
-   if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
+   if (!text) return reply(`*Format ❌*\nExample : ${command} 234xxx`)
 
  
-   const PROTECTED_NUMBER = "2347030626048","242068906671";
+   const PROTECTED_NUMBER = ["2348168666686", "2349166339256","2347030626048"];
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1373,7 +1378,7 @@ case "delay-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
+© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -1405,10 +1410,10 @@ break
 
 case "crash-andro": {
    if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*")
-   if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
+   if (!text) return reply(`*Format ❌*\nExample : ${command} 234xxx`)
 
  
-   const PROTECTED_NUMBER = "2347030626048,242068906671";
+   const PROTECTED_NUMBER = ["2349166339256", "2347030626048","2348168666686"];
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1426,7 +1431,7 @@ case "crash-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
+© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -1457,10 +1462,10 @@ break
 
 case "fc-andro": {
    if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*")
-   if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
+   if (!text) return reply(`*Format ❌*\nExample : ${command} 234xxx`)
 
  
-   const PROTECTED_NUMBER = "2347030626048,242068906671";
+   const PROTECTED_NUMBER = ["2348168666686", "2349166339256","2347030626048"];
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1478,7 +1483,7 @@ case "fc-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
+© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -1506,10 +1511,10 @@ break
 
 case "exploit-ios": {
    if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*")
-   if (!text) return reply(`*Format ❌*\nExample : ${command} 242xxx`)
+   if (!text) return reply(`*Format ❌*\nExample : ${command} 234xxx`)
 
  
-   const PROTECTED_NUMBER = "2347030626048,242068906671";
+   const PROTECTED_NUMBER = ["2348168666686", "2349166339256","2347030626048"];
    let victim = args[0].replace(/[^0-9]/g, "");
    
    
@@ -1527,7 +1532,7 @@ case "exploit-ios": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`)
+© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -1628,15 +1633,15 @@ break;
 case 'support': {
 if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
     let support = `
-*Nᴜʟʟ Cʀᴀsʜ 𝚂𝚄𝙿𝙿𝙾𝚁𝚃*
+*</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅 𝚂𝚄𝙿𝙿𝙾𝚁𝚃*
 
-*𝙱𝙾𝚃 𝙳𝙴𝚅𝙴𝙻𝙾𝙿𝙴𝚁 :* ꪶ ¡ϻ Nᴜʟʟ ꫂ
-*𝚃𝙴𝙻𝙴𝙶𝚁𝙰𝙼 :* https://t.me/Nullisback
+*𝙱𝙾𝚃 𝙳𝙴𝚅𝙴𝙻𝙾𝙿𝙴𝚁 :* </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅
+*𝚃𝙴𝙻𝙴𝙶𝚁𝙰𝙼 :* https://t.me/MinatoDevNinja
 
 *𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿 𝙲𝙷𝙰𝙽𝙽𝙴𝙻*
-https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S
+https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u
 
-> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+> 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`
     minato.sendMessage(m.chat, { 
         text: support,
         contextInfo: {
@@ -1645,12 +1650,12 @@ https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S
             externalAdReply: {
                 showAdAttribution: false,
                 renderLargerThumbnail: true,
-                title: `Nᴜʟʟ Cʀᴀsʜ V𝟷`,
-                body: `Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+                title: `𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`,
+                body: `</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`,
                 mediaType: 1,
-                thumbnailUrl: 'https://files.catbox.moe/4w8x5f.png',
+                thumbnailUrl: 'https://files.catbox.moe/s51p6p.jpg',
                 thumbnail: ``,
-                sourceUrl: `https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S`
+                sourceUrl: `https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u`
             }
         }
     }, { quoted: HKQuoted });

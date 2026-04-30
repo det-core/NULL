@@ -10,6 +10,7 @@ const {
     generateForwardMessageContent,
     generateWAMessageFromContent,
     jidDecode
+    jidNormalizedUser
 } = require("@whiskeysockets/baileys");
 
 const axios = require('axios');
@@ -18,7 +19,6 @@ const crypto = require("crypto");
 const util = require('util');
 const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premiun");
-const { jidDecode, jidNormalizedUser } = require("@whiskeysockets/baileys");
 //===============
 module.exports = async (waSocket, message, chatUpdate, store) => {
 

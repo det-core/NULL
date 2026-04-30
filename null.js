@@ -18,7 +18,7 @@ const fs = require('fs-extra');
 const crypto = require("crypto");
 const util = require('util');
 const chalk = require('chalk');
-const { addPremiumUser, delPremiumUser } = require("./lib/premiun");
+const { addPremiumUser, delPremiumUser } = require("./lib/premium");
 //===============
 module.exports = async (waSocket, message, chatUpdate, store) => {
 

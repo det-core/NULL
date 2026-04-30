@@ -9,7 +9,7 @@ const {
     delay,
     generateForwardMessageContent,
     generateWAMessageFromContent,
-    jidDecode
+    jidDecode,
     jidNormalizedUser
 } = require("@whiskeysockets/baileys");
 

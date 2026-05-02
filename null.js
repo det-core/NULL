@@ -78,7 +78,7 @@ const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns
 //======================
 const botNumber = minato.user.id.replace(/:.*/, '');
 const sender = m.sender;
-const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
+const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "")).includes(m.sender.replace(/[^0-9]/g, ""));
 let premuser = [];
 try { premuser = JSON.parse(fs.readFileSync("./system/database/premium.json")); } catch(e) {}
 const isPremium = [botNumber, ...global.owner, ...premuser.map(user => user.id.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(m.sender);

@@ -903,7 +903,7 @@ ${channelList}
           await nullHandler(sock, m, chatUpdate, store);
         } catch (err) { console.log("Message handler error:", err); }
       });
-      sock.ev.on("connection.update", (update) => {
+      sock.ev.on("connection.update", async (update) => {
         const { connection, lastDisconnect } = update;
         const statusCode = lastDisconnect?.error?.output?.statusCode;
         console.log("Connection update:", { connection, statusCode });

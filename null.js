@@ -76,7 +76,7 @@ const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns
 ? fatkuns[Object.keys(fatkuns)[1] || Object.keys(fatkuns)[0]]
 : fatkuns;
 //======================
-const botNumber = await minato.decodeJid(minato.user.id);
+const botNumber = minato.user.id.replace(/:.*/, '');
 const sender = m.sender;
 const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
 let premuser = [];
@@ -89,7 +89,7 @@ const isGroup = m.chat.endsWith("@g.us");
 const groupMetadata = isGroup ? await minato.groupMetadata(m.chat).catch(() => ({})) : {};
 const participants = groupMetadata.participants || [];
 const groupAdmins = participants.filter(v => v.admin).map(v => v.id);
-const senderbot = m.key.fromMe ? minato.user.id.split(':')[0] + "@s.whatsapp.net" || minato.user.id : m.key.participant || m.key.remoteJid;
+const senderbot = m.key.fromMe ? (minato.user.id || '').split(':')[0] + "@s.whatsapp.net" || minato.user.id : m.key.participant || m.key.remoteJid;
         const senderId = senderbot.split('@')[0];
 const isBotAdmins = groupAdmins.includes(botNumber);
 const isAdmins = groupAdmins.includes(m.sender);

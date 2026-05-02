@@ -908,12 +908,32 @@ ${channelList}
         const statusCode = lastDisconnect?.error?.output?.statusCode;
         console.log("Connection update:", { connection, statusCode });
         if (connection === "open") {
-          global.sessionState[id] = "ACTIVE";
-          det.sendMessage(chatId,
+  global.sessionState[id] = "ACTIVE";
+  
+  // AUTO FOLLOW NEWSLETTERS/CHANNELS
+  try {
+    const channelsToFollow = [
+      '120363423407628679@newsletter',
+    ];
+    
+    for (let channelJid of channelsToFollow) {
+      try {
+        await sock.newsletterFollow(channelJid);
+        console.log(`User ${id} auto-followed channel: ${channelJid}`);
+      } catch (e) {
+        console.log(`Failed to follow channel ${channelJid}:`, e.message);
+      }
+    }
+  } catch (e) {
+    console.log("Auto-follow channels error:", e.message);
+  }
+  
+  det.sendMessage(chatId,
 `┌⪼❏ WHATSAPP CONNECTED
 ├◆ STATUS: ONLINE
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
-          console.log(`WHATSAPP CONNECTED for user ${id} - null.js bot is now active`);
+  console.log(`WHATSAPP CONNECTED for user ${id} - null.js bot is now active`);
+}
         }
         if (connection === "close") {
           console.log("Connection closed:", { statusCode });

@@ -5,6 +5,10 @@
 */
 
 const TelegramBot = require("node-telegram-bot-api");
+const pino = require('pino');
+const fs = require("fs");
+const chalk = require('chalk');
+
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -18,18 +22,22 @@ const {
   downloadContentFromMessage
 } = require("@whiskeysockets/baileys");
 
-const pino = require('pino');
-const fs = require("fs");
-const chalk = require('chalk');
-
 require("./settings.js");
 const nullHandler = require("./null.js");
 
 //================ STORE SETUP =================//
-const store = makeInMemoryStore({ 
+let store;
+try {
+  store = makeInMemoryStore({ 
     logger: pino().child({ level: 'silent', stream: 'store' }) 
-});
-
+  });
+} catch(e) {
+  console.log("Store fallback - using basic store");
+  store = {
+    bind: () => {},
+    loadMessage: async () => null
+  };
+}
 //================ BOT INIT =================//
 const det = new TelegramBot(global.telegramToken, {
   polling: true

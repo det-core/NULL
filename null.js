@@ -2725,7 +2725,7 @@ await doneress();
      sleep(2000)
      await CV14(minato, target);
      sleep(2000)
-     await MakluGwEvve(target);
+     await MakluGwEvve(minato, target);
      
  
  }   

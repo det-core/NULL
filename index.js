@@ -95,11 +95,27 @@ if (m.isGroup) m.participant = (m.key.participant || '').replace(/:.*/, '');
             m.quoted.sender = (m.msg?.contextInfo?.participant || "").replace(/:.*/, '');
             m.quoted.text = m.quoted.text || m.quoted.caption || '';
             m.quoted.mentionedJid = m.msg?.contextInfo?.mentionedJid || [];
-            m.quoted.download = () => conn.downloadMediaMessage(m.quoted);
+            m.quoted.download = async () => {
+    const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
+    const stream = await downloadContentFromMessage(m.quoted, m.quoted.mtype?.includes('image') ? 'image' : 'video');
+    let buffer = Buffer.from([]);
+    for await (const chunk of stream) {
+        buffer = Buffer.concat([buffer, chunk]);
+    }
+    return buffer;
+};
         }
     }
     
-    if (m.msg && m.msg.url) m.download = () => conn.downloadMediaMessage(m.msg);
+    if (m.msg && m.msg.url) m.download = async () => {
+    const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
+    const stream = await downloadContentFromMessage(m.msg, m.mtype?.includes('image') ? 'image' : 'video');
+    let buffer = Buffer.from([]);
+    for await (const chunk of stream) {
+        buffer = Buffer.concat([buffer, chunk]);
+    }
+    return buffer;
+};
     m.text = m.msg.text || m.msg.caption || m.message.conversation || '';
     m.reply = (text, chatId = m.chat, options = {}) => 
         Buffer.isBuffer(text) ? conn.sendMedia(chatId, text, 'file', '', m, { ...options }) : 

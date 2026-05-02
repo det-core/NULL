@@ -70,7 +70,6 @@ const isCmd = !!prefix;
 const args = isCmd ? body.slice(prefix.length).trim().split(/ +/).slice(1) : []; 
 const command = isCmd ? body.slice(prefix.length).trim().split(/ +/)[0].toLowerCase() : "";
 const text = args.join(" "); 
-await checkAntiLink(minato, m);
 const fatkuns = m.quoted || m;
 const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns.mtype)
 ? fatkuns[Object.keys(fatkuns)[1] || Object.keys(fatkuns)[0]]
@@ -94,6 +93,7 @@ const senderbot = m.key.fromMe ? (minato.user.id || '').split(':')[0] + "@s.what
 const isBotAdmins = groupAdmins.includes(botNumber);
 const isAdmins = groupAdmins.includes(m.sender);
 const groupName = groupMetadata.subject || "";
+await checkAntiLink(minato, m);
 let example = (teks) => {
 return `\n\`ᴡʀᴏɴɢ ᴄᴏᴍᴍᴀɴᴅ\` \n *ᴇxᴀᴍᴘʟᴇ ᴏғ ᴜsᴀɢᴇ* :*\nᴛʏᴘᴇ *cmd*${cmd}* ${teks}\n`
 }

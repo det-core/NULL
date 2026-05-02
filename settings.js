@@ -20,7 +20,7 @@ global.resellerTelegramIds = [];
 global.nameowner = "I'M NULL";
 global.author = ["2347030626048"];
 global.authors = ["@knoxprime", "@Nullisback"];
-global.nameauthor = "Powered by I'M NULL";
+global.nameauthor = "Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ";
 global.inline = global.inline ?? true;
 global.lockPair = global.lockPair ?? false;
 global.vip = global.vip || [];
@@ -28,7 +28,7 @@ global.sessionState = global.sessionState || {};
 global.startTime = global.startTime || Date.now();
 global.namebot = "NULL CRASH V1";
 global.det = {
-  newsletterJid: "120363419855570475@newsletter",
+  newsletterJid: "120363423407628679@newsletter",
 };
 
 global.antilink = true;
@@ -50,9 +50,6 @@ global.img = {
     menu: 'https://files.catbox.moe/4w8x5f.png'
 };
 
-global.img = {
-    menu: 'https://files.catbox.moe/4w8x5f.png'
-};
 global.settings = {
     autoViewStatus: false,
     autoTyping: false,

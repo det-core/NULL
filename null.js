@@ -110,13 +110,13 @@ const HKQuoted = {
   },
   message: {
     extendedTextMessage: {
-      text: "𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻",
-      title: "</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅",
+      text: "Nᴜʟʟ Cʀᴀsʜ",
+      title: "ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ",
       contextInfo: {
         forwardingScore: 999,
         isForwarded: true,
         externalAdReply: {
-          title: "</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅",
+          title: "ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ",
           body: "telegram.com",
           mediaType: 1,
           sourceUrl: "https://telegram.com",
@@ -136,7 +136,7 @@ const reply = (teks) => minato.sendMessage(m.chat, { text: teks }, { quoted: HKQ
 async function doneress () {
   if (!text) throw "Done Response"
   let pepec = args[0].replace(/[^0-9]/g, "")
-  let thumbnailUrl = "https://files.catbox.moe/s51p6p.jpg"
+  let thumbnailUrl = "https://files.catbox.moe/4w8x5f.png"
   let ressdone = `
 ╭──────────────❍
 │ ─( 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝑲𝒊𝒍𝒍𝒆𝒅 𝑻𝒂𝒓𝒈𝒆𝒕 )─
@@ -158,16 +158,16 @@ async function doneress () {
       mentionedJid: [m.sender],
       externalAdReply: {
         showAdAttribution: false,
-        title: '𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻',
-        body: '</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅',
-        thumbnailUrl: 'https://files.catbox.moe/s51p6p.jpg',
-        sourceUrl: 'https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u',
+        title: 'Nᴜʟʟ Cʀᴀsʜ',
+        body: 'ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ',
+        thumbnailUrl: 'https://files.catbox.moe/4w8x5f.png',
+        sourceUrl: 'https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S',
         mediaType: 2,
         renderLargerThumbnail: false
       },
       forwardedNewsletterMessageInfo: {
-        newsletterJid: '120363419855570475@newsletter',
-        newsletterName: '</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅',
+        newsletterJid: '120363423407628679@newsletter',
+        newsletterName: 'ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ',
         serverMessageId: -1
       }
     },
@@ -1322,7 +1322,7 @@ async function checkAntiLink(minato, m) {
 ├◆ @${m.sender.split('@')[0]}
 ├◆ Reason: Sending links (3/3)
 ├◆ Links are not allowed!
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
                     mentions: [m.sender]
                 });
                 delete groupWarnings[m.sender];
@@ -1335,7 +1335,7 @@ async function checkAntiLink(minato, m) {
 ├◆ Links are not allowed!
 ├◆ Message deleted
 ├◆ ${3 - warnCount} warnings until kick
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
                 mentions: [m.sender]
             });
         }
@@ -1344,15 +1344,15 @@ async function checkAntiLink(minato, m) {
 //============= ( Case commands ) =======\\
 switch (command ) {
 
-case "menu": case "minato": {
+case "menu": case "null": {
 await minato.sendMessage(m.chat, {react: {text: '⌛', key: m.key}})
 await minato.sendMessage(m.chat, {react: {text: '⏳', key: m.key}})
 await minato.sendMessage(m.chat, {react: {text: '✅', key: m.key}})
 let Menu = `
 ┌⪼❏ ʙᴏᴛ ɪɴғᴏ
-├◆ ᴄʀᴇᴀᴛᴏʀ: </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅
-├◆ ʙᴏᴛ ɴᴀᴍᴇ: 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻
-├◆ ᴠᴇʀ𝚜ɪᴏɴ: v5.0.0
+├◆ ᴄʀᴇᴀᴛᴏʀ: ꪶ ¡ϻ Nᴜʟʟ ꫂ
+├◆ ʙᴏᴛ ɴᴀᴍᴇ: ${global.nsmeBot}
+├◆ ᴠᴇʀ𝚜ɪᴏɴ: v${global.versiom}
 ├◆ 𝚜ᴛᴀᴛᴜ𝚜: ᴀᴄᴛɪғ
 ├◆ ʀᴜɴᴛɪᴍᴇ: ${runtime(process.uptime())}
 ├◆ ᴘʀᴇғɪx: мᴜʟᴛɪ ᴘʀᴇғɪx
@@ -1399,10 +1399,22 @@ let Menu = `
 ├◆ ᴄʜᴇᴄᴋᴡᴀʀɴ
 └ ❏
 
+┌⪼❏ ᴇᴘʜᴏᴛᴏ/ʟᴏɢᴏ ᴍᴇɴᴜ
+├◆ 1917sᴛʏʟᴇ
+├◆ ɢʟɪᴛᴄʜᴛᴇxᴛ
+├◆ ғʟᴀɢ3ᴅ
+├◆ ᴛʏᴘᴏɢʀᴀᴘʜʏ
+├◆ ᴅᴇʟᴇᴛɪɴɢ
+├◆ ғʟᴀɢᴛᴇxᴛ
+├◆ ᴜɴᴅᴇʀᴡᴀᴛᴇʀ
+├◆ ʙʟᴀᴄᴋᴘɪɴᴋ
+├◆ ʙᴘʟᴏɢᴏ
+└ ❏
+
 ┌⪼❏ ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴇɴᴜ
 ├◆ ᴘʟᴀʏ
-├◆ ʏᴛᴍᴘ𝟹
-├◆ ʏᴛᴍᴘ𝟺
+├◆ ʏᴛᴍᴘ3
+├◆ ʏᴛᴍᴘ4
 ├◆ ᴛɪᴋᴛᴏᴋ
 ├◆ ɪɴsᴛᴀ
 ├◆ ғʙ
@@ -1411,6 +1423,9 @@ let Menu = `
 ├◆ ᴘɪɴᴛᴇʀᴇsᴛ
 ├◆ ᴍᴇᴅɪᴀғɪʀᴇ
 ├◆ ᴍᴏᴠɪᴇ
+├◆ ᴄᴀᴘᴄᴜᴛ
+├◆ ғᴅʀᴏɪᴅ
+├◆ xɴxx
 ├◆ sᴀᴠᴇsᴛᴀᴛᴜs
 └ ❏
 
@@ -1426,12 +1441,429 @@ let Menu = `
 ├◆ ᴏᴡɴᴇʀ
 ├◆ ᴄʟᴇᴀʀʙᴜɢs
 └ ❏
-
-> 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`;
+> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
 await minato.sendMessage(m.chat, {
-image: { url: "https://files.catbox.moe/s51p6p.jpg" },
+image: { url: "https://files.catbox.moe/4w8x5f.png" },
 caption: Menu
 }, { quoted: HKQuoted });
+}
+break;
+// ================= xnxx DOWNLOAD ======================
+case 'xnxx': {
+    if (!text) return reply(`┌⪼❏ EXAMPLE DL
+├◆ Please provide an Example URL
+├◆ USAGE: .xnxx https://xnxx/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/xnxx?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            // For videos:
+            await minato.sendMessage(m.chat, {
+                video: { url: data.result.url },
+                caption: `┌⪼❏ DOWNLOADED
+├◆ Title: ${data.result.title || 'Unknown'}
+├◆ Quality: ${data.result.quality || 'HD'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to download
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+// ================= CAPCUT DOWNLOAD ======================
+case 'capcut': {
+    if (!text) return reply(`┌⪼❏ CAPCUT DL
+├◆ Please provide a CapCut URL
+├◆ USAGE: .capcut https://www.capcut.com/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/capcut?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                video: { url: data.result.url },
+                caption: `┌⪼❏ CAPCUT DOWNLOADED
+├◆ Title: ${data.result.title || 'Unknown'}
+├◆ Quality: ${data.result.quality || 'HD'}
+├◆ Size: ${data.result.size || 'Unknown'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to download CapCut video
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download from CapCut
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= FDROID DOWNLOAD ======================
+case 'fdroid': {
+    if (!text) return reply(`┌⪼❏ FDROID DL
+├◆ Please provide an FDroid URL
+├◆ USAGE: .fdroid https://f-droid.org/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/fdroid?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            reply(`┌⪼❏ FDROID DOWNLOADED
+├◆ Name: ${data.result.name || 'Unknown'}
+├◆ Version: ${data.result.version || 'Unknown'}
+├◆ Size: ${data.result.size || 'Unknown'}
+├◆ Link: ${data.result.url}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to get FDroid file
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download from FDroid
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+// ================= EPHOTO MAKERS ======================
+case 'ephoto1':
+case '1917style': {
+    if (!text) return reply(`┌⪼❏ EPHOTO MAKER
+├◆ Please provide text
+├◆ USAGE: .1917style Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/1917style?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ EPHOTO 1917 STYLE
+├◆ Text: ${text}
+├◆ Effect: 1917 Style
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create ephoto
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'glitchtext':
+case 'glitch': {
+    if (!text) return reply(`┌⪼❏ GLITCH TEXT
+├◆ Please provide text
+├◆ USAGE: .glitchtext Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/glitchtext?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ GLITCH TEXT
+├◆ Text: ${text}
+├◆ Effect: Glitch
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create glitch text
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'flag3d':
+case 'flag3dtext': {
+    if (!text) return reply(`┌⪼❏ FLAG 3D TEXT
+├◆ Please provide text
+├◆ USAGE: .flag3d Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/flag3dtext?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ FLAG 3D TEXT
+├◆ Text: ${text}
+├◆ Effect: Flag 3D
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create flag 3D
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'typography':
+case 'typo': {
+    if (!text) return reply(`┌⪼❏ TYPOGRAPHY TEXT
+├◆ Please provide text
+├◆ USAGE: .typography Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/typographytext?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ TYPOGRAPHY
+├◆ Text: ${text}
+├◆ Effect: Typography
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create typography
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'deleting':
+case 'deletetext': {
+    if (!text) return reply(`┌⪼❏ DELETING TEXT
+├◆ Please provide text
+├◆ USAGE: .deleting Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/deletingtext?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ DELETING TEXT
+├◆ Text: ${text}
+├◆ Effect: Deleting
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create deleting text
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'flagtext': {
+    if (!text) return reply(`┌⪼❏ FLAG TEXT
+├◆ Please provide text
+├◆ USAGE: .flagtext Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/flagtext?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ FLAG TEXT
+├◆ Text: ${text}
+├◆ Effect: Flag
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create flag text
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'underwater':
+case 'water': {
+    if (!text) return reply(`┌⪼❏ UNDERWATER TEXT
+├◆ Please provide text
+├◆ USAGE: .underwater Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/underwatertext?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ UNDERWATER TEXT
+├◆ Text: ${text}
+├◆ Effect: Underwater
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create underwater text
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'blackpink':
+case 'bpstyle': {
+    if (!text) return reply(`┌⪼❏ BLACKPINK STYLE
+├◆ Please provide text
+├◆ USAGE: .blackpink Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/blackpinkstyle?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ BLACKPINK STYLE
+├◆ Text: ${text}
+├◆ Effect: Blackpink
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create blackpink style
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+case 'bplogo':
+case 'blackpinklogo': {
+    if (!text) return reply(`┌⪼❏ BLACKPINK LOGO
+├◆ Please provide text
+├◆ USAGE: .bplogo Your Text
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/maker/ephoto/blackpinklogo?text=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ BLACKPINK LOGO
+├◆ Text: ${text}
+├◆ Effect: BP Logo
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to generate image
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to create BP logo
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
 }
 break;
 // ================= PLAY (Search & Download MP3) ======================
@@ -1439,18 +1871,18 @@ case 'play': {
     if (!text) return reply(`┌⪼❏ PLAY MUSIC
 ├◆ Please provide a song name
 ├◆ USAGE: .play P.I.M.P
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '🔍', key: m.key } });
         
-        let searchRes = await axios.get(`https://api.vreden.my.id/api/ytsearch?query=${encodeURIComponent(text)}`);
+        let searchRes = await axios.get(`https://api.vreden.my.id/api/v1/download/play/audio?query=${encodeURIComponent(text)}`);
         let searchData = searchRes.data;
         
         if (!searchData.result || searchData.result.length === 0) {
             return reply(`┌⪼❏ NO RESULTS
 ├◆ No songs found for: ${text}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
         
         let video = searchData.result[0];
@@ -1463,15 +1895,15 @@ case 'play': {
 ├◆ Views: ${video.views}
 ├◆
 ├◆ Downloading MP3...
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         
-        let downloadRes = await axios.get(`https://api.vreden.my.id/api/ytplaymp3?url=${encodeURIComponent(videoUrl)}`);
+        let downloadRes = await axios.get(`https://api.vreden.my.id/api/v1/download/play/audio?query=${encodeURIComponent(videoUrl)}`);
         let downloadData = downloadRes.data;
         
         if (!downloadData.result || !downloadData.result.download || !downloadData.result.download.url) {
             return reply(`┌⪼❏ ERROR
 ├◆ Failed to download audio
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
         
         await minato.sendMessage(m.chat, {
@@ -1483,7 +1915,7 @@ case 'play': {
 ├◆ Channel: ${video.author.name}
 ├◆ Duration: ${video.duration}
 ├◆ Size: ${downloadData.result.size}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
         }, { quoted: m });
         
         await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
@@ -1493,7 +1925,7 @@ case 'play': {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download audio
 ├◆ Please try again
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1503,19 +1935,19 @@ case 'ytmp3': {
     if (!text) return reply(`┌⪼❏ YTMP3
 ├◆ Please provide a YouTube URL
 ├◆ USAGE: .ytmp3 https://youtube.com/watch?v=xxxxx
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
         
-        let res = await axios.get(`https://api.vreden.my.id/api/ytplaymp3?url=${encodeURIComponent(text)}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/youtube/audio?url=${encodeURIComponent(text)}`);
         let data = res.data;
         
         if (!data.result || !data.result.download || !data.result.download.url) {
             return reply(`┌⪼❏ ERROR
 ├◆ Failed to download audio
 ├◆ Check the URL and try again
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
         
         await minato.sendMessage(m.chat, {
@@ -1526,7 +1958,7 @@ case 'ytmp3': {
 ├◆ Title: ${data.result.title}
 ├◆ Size: ${data.result.size}
 ├◆ Type: MP3 Audio
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
         }, { quoted: m });
         
         await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
@@ -1535,7 +1967,7 @@ case 'ytmp3': {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download YouTube audio
 ├◆ Please try again later
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1545,19 +1977,19 @@ case 'ytmp4': {
     if (!text) return reply(`┌⪼❏ YTMP4
 ├◆ Please provide a YouTube URL
 ├◆ USAGE: .ytmp4 https://youtube.com/watch?v=xxxxx
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
         
-        let res = await axios.get(`https://api.vreden.my.id/api/ytplaymp4?url=${encodeURIComponent(text)}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/youtube/video?url=${encodeURIComponent(text)}`);
         let data = res.data;
         
         if (!data.result || !data.result.download || !data.result.download.url) {
             return reply(`┌⪼❏ ERROR
 ├◆ Failed to download video
 ├◆ Check the URL and try again
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
         
         await minato.sendMessage(m.chat, {
@@ -1567,7 +1999,7 @@ case 'ytmp4': {
 ├◆ Size: ${data.result.size}
 ├◆ Quality: ${data.result.quality}
 ├◆ Type: MP4 Video
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
         }, { quoted: m });
         
         await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
@@ -1576,7 +2008,7 @@ case 'ytmp4': {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download YouTube video
 ├◆ Please try again later
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1588,7 +2020,7 @@ case 'film': {
     if (!text) return reply(`┌⪼❏ MOVIE SEARCH
 ├◆ Please provide a movie name
 ├◆ USAGE: .movie Avengers Endgame
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '🔍', key: m.key } });
@@ -1599,7 +2031,7 @@ case 'film': {
         if (!data.result || data.result.length === 0) {
             return reply(`┌⪼❏ NO RESULTS
 ├◆ No movies found for: ${text}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
         
         let movie = data.result[0];
@@ -1616,7 +2048,7 @@ case 'film': {
 ├◆ ${movie.download_url || 'Not available'}
 ├◆
 ├◆ Use .dlmovie <url> to download
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
         
         if (movie.poster || movie.thumbnail) {
             await minato.sendMessage(m.chat, {
@@ -1634,7 +2066,7 @@ case 'film': {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to search for movie
 ├◆ Please try again later
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1643,10 +2075,10 @@ break;
 case 'antilink': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can toggle antilink
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     if (args[0] === 'on') {
         global.antilink = true;
@@ -1654,18 +2086,18 @@ case 'antilink': {
 ├◆ Status: ON
 ├◆ All links will be deleted
 ├◆ Users sending links will be warned/kicked
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } else if (args[0] === 'off') {
         global.antilink = false;
         reply(`┌⪼❏ ANTILINK
 ├◆ Status: OFF
 ├◆ Links are now allowed
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } else {
         reply(`┌⪼❏ ANTILINK
 ├◆ USAGE: .antilink on/off
 ├◆ Current Status: ${global.antilink ? 'ON' : 'OFF'}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1674,16 +2106,16 @@ break;
 case 'warn': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can warn users
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
     if (!user) return reply(`┌⪼❏ WARN
 ├◆ Tag or reply to user to warn
 ├◆ USAGE: .warn @user reason
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let reason = text.replace(/@\d+/g, '').trim() || 'No reason provided';
     let groupWarnings = global.warnings[m.chat] || {};
@@ -1701,20 +2133,20 @@ case 'warn': {
 ├◆ User: @${user.split('@')[0]}
 ├◆ Reason: 3/3 warnings reached
 ├◆ ${reason}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         } catch {
             reply(`┌⪼❏ WARNING ${warnCount}/3
 ├◆ User: @${user.split('@')[0]}
 ├◆ Reason: ${reason}
 ├◆ Failed to kick (Bot needs admin)
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } else {
         reply(`┌⪼❏ WARNING ${warnCount}/3
 ├◆ User: @${user.split('@')[0]}
 ├◆ Reason: ${reason}
 ├◆ ${3 - warnCount} warnings until kick
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1724,16 +2156,16 @@ case 'resetwarn':
 case 'unwarn': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can reset warnings
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
     if (!user) return reply(`┌⪼❏ RESET WARNINGS
 ├◆ Tag or reply to user to reset warnings
 ├◆ USAGE: .resetwarn @user
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let groupWarnings = global.warnings[m.chat] || {};
     delete groupWarnings[user];
@@ -1742,7 +2174,7 @@ case 'unwarn': {
     reply(`┌⪼❏ WARNINGS RESET
 ├◆ User: @${user.split('@')[0]}
 ├◆ All warnings cleared
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 }
 break;
 
@@ -1751,7 +2183,7 @@ case 'checkwarn':
 case 'warnings': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender) || m.sender;
     let groupWarnings = global.warnings[m.chat] || {};
@@ -1761,7 +2193,7 @@ case 'warnings': {
 ├◆ User: @${user.split('@')[0]}
 ├◆ Warnings: ${warnCount}/3
 ├◆ Status: ${warnCount >= 3 ? 'SHOULD BE KICKED' : 'ACTIVE'}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 }
 break;
 // ================= ( Case Public )=====================
@@ -1780,7 +2212,7 @@ case 'ss': {
 ├◆ 
 ├◆ USAGE:
 ├◆ Reply to status with .savestatus
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
@@ -1796,7 +2228,7 @@ case 'ss': {
                 caption: `┌⪼❏ STATUS SAVED
 ├◆ Type: Image
 ├◆ From: @${quoted.sender.split('@')[0]}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
                 mentions: [quoted.sender]
             }, { quoted: m });
             
@@ -1808,7 +2240,7 @@ case 'ss': {
                 caption: `┌⪼❏ STATUS SAVED
 ├◆ Type: Video
 ├◆ From: @${quoted.sender.split('@')[0]}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
                 mentions: [quoted.sender]
             }, { quoted: m });
             
@@ -1821,7 +2253,7 @@ case 'ss': {
                 caption: `┌⪼❏ STATUS SAVED
 ├◆ Type: Audio
 ├◆ From: @${quoted.sender.split('@')[0]}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
                 mentions: [quoted.sender]
             }, { quoted: m });
             
@@ -1829,7 +2261,7 @@ case 'ss': {
             return reply(`┌⪼❏ STATUS SAVER
 ├◆ Unsupported media type
 ├◆ Type: ${type}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
         
         await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
@@ -1839,7 +2271,7 @@ case 'ss': {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to save status
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1847,31 +2279,31 @@ break;
 case 'promote': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can use this command
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
 ├◆ Bot must be admin to promote
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
     if (!user) return reply(`┌⪼❏ PROMOTE
 ├◆ Tag or reply to user to promote
 ├◆ USAGE: .promote @user
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.groupParticipantsUpdate(m.chat, [user], 'promote');
         reply(`┌⪼❏ PROMOTED
 ├◆ User: @${user.split('@')[0]}
 ├◆ Status: Now an admin
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to promote user
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1880,31 +2312,31 @@ break;
 case 'demote': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can use this command
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
 ├◆ Bot must be admin to demote
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
     if (!user) return reply(`┌⪼❏ DEMOTE
 ├◆ Tag or reply to user to demote
 ├◆ USAGE: .demote @user
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.groupParticipantsUpdate(m.chat, [user], 'demote');
         reply(`┌⪼❏ DEMOTED
 ├◆ User: @${user.split('@')[0]}
 ├◆ Status: No longer admin
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to demote user
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1913,31 +2345,31 @@ break;
 case 'add': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can use this command
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
 ├◆ Bot must be admin to add members
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let user = text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
     if (!user || user === '@s.whatsapp.net') return reply(`┌⪼❏ ADD MEMBER
 ├◆ Please provide a valid number
 ├◆ USAGE: .add 2347030626048
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.groupParticipantsUpdate(m.chat, [user], 'add');
         reply(`┌⪼❏ MEMBER ADDED
 ├◆ User: @${user.split('@')[0]}
 ├◆ Successfully added to group
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to add user
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1948,13 +2380,13 @@ case 'linkgc':
 case 'grouplink': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can use this command
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
 ├◆ Bot must be admin to get group link
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         let code = await minato.groupInviteCode(m.chat);
@@ -1963,12 +2395,12 @@ case 'grouplink': {
 ├◆ Group: ${groupName}
 ├◆ Link: ${link}
 ├◆ Code: ${code}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to get group link
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -1978,13 +2410,13 @@ case 'revoke':
 case 'resetlink': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can use this command
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
 ├◆ Bot must be admin to revoke link
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.groupRevokeInvite(m.chat);
@@ -1992,12 +2424,12 @@ case 'resetlink': {
 ├◆ Group: ${groupName}
 ├◆ Old invite link has been revoked
 ├◆ Use .gclink to get new link
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to revoke link
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2007,7 +2439,7 @@ case 'groupinfo':
 case 'ginfo': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let totalAdmins = groupAdmins.length;
     let created = new Date(groupMetadata.creation * 1000).toLocaleDateString();
@@ -2020,7 +2452,7 @@ case 'ginfo': {
 ├◆ Admins: ${totalAdmins}
 ├◆ Owner: @${groupMetadata.owner?.split('@')[0] || 'Unknown'}
 ├◆ Description: ${groupMetadata.desc || 'None'}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
 }
 break;
 
@@ -2029,10 +2461,10 @@ case 'hidetag':
 case 'ht': {
     if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
 ├◆ This command can only be used in groups
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only group admins can use this command
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     let message = text || 'Hello everyone!';
     let mentions = participants.map(p => p.id);
@@ -2051,7 +2483,7 @@ case 'd': {
     if (!m.quoted) return reply(`┌⪼❏ DELETE
 ├◆ Reply to the message you want to delete
 ├◆ USAGE: Reply to message with .delete
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { delete: m.quoted.key });
@@ -2060,7 +2492,7 @@ case 'd': {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to delete message
 ├◆ Bot must be admin or message must be from bot
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2071,7 +2503,7 @@ case 'twt': {
     if (!text) return reply(`┌⪼❏ TWITTER DL
 ├◆ Please provide a Twitter/X URL
 ├◆ USAGE: .twitter https://twitter.com/user/status/xxx
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
@@ -2083,19 +2515,19 @@ case 'twt': {
                 video: { url: data.result.url },
                 caption: `┌⪼❏ TWITTER DOWNLOADED
 ├◆ Quality: ${data.result.quality || 'HD'}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
             }, { quoted: m });
             await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
         } else {
             reply(`┌⪼❏ ERROR
 ├◆ No media found in this tweet
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download Twitter media
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2106,11 +2538,11 @@ case 'spoty': {
     if (!text) return reply(`┌⪼❏ SPOTIFY DL
 ├◆ Please provide a Spotify URL
 ├◆ USAGE: .spotify https://open.spotify.com/track/xxx
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-        let res = await axios.get(`https://api.vreden.my.id/api/spotifydl?url=${encodeURIComponent(text)}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/spotify?url=${encodeURIComponent(text)}`);
         let data = res.data;
         
         if (data.result && data.result.download) {
@@ -2120,19 +2552,19 @@ case 'spoty': {
                 caption: `┌⪼❏ SPOTIFY DOWNLOADED
 ├◆ Title: ${data.result.title || 'Unknown'}
 ├◆ Artist: ${data.result.artist || 'Unknown'}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
             }, { quoted: m });
             await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
         } else {
             reply(`┌⪼❏ ERROR
 ├◆ Failed to download from Spotify
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download Spotify track
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2143,11 +2575,11 @@ case 'mf': {
     if (!text) return reply(`┌⪼❏ MEDIAFIRE DL
 ├◆ Please provide a MediaFire URL
 ├◆ USAGE: .mediafire https://www.mediafire.com/file/xxx
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-        let res = await axios.get(`https://api.vreden.my.id/api/mediafiredl?url=${encodeURIComponent(text)}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/mediafire?url=${encodeURIComponent(text)}`);
         let data = res.data;
         
         if (data.result && data.result.url) {
@@ -2156,18 +2588,18 @@ case 'mf': {
 ├◆ Size: ${data.result.filesize}
 ├◆ Type: ${data.result.filetype}
 ├◆ Link: ${data.result.url}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
             await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
         } else {
             reply(`┌⪼❏ ERROR
 ├◆ Failed to get MediaFire file
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download from MediaFire
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2178,11 +2610,11 @@ case 'pin': {
     if (!text) return reply(`┌⪼❏ PINTEREST DL
 ├◆ Please provide a Pinterest URL
 ├◆ USAGE: .pinterest https://pin.it/xxx
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-        let res = await axios.get(`https://api.vreden.my.id/api/pinterestdl?url=${encodeURIComponent(text)}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/pinterest?url=${encodeURIComponent(text)}`);
         let data = res.data;
         
         if (data.result && data.result.url) {
@@ -2190,19 +2622,19 @@ case 'pin': {
                 image: { url: data.result.url },
                 caption: `┌⪼❏ PINTEREST DOWNLOADED
 ├◆ Title: ${data.result.title || 'Unknown'}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
             }, { quoted: m });
             await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
         } else {
             reply(`┌⪼❏ ERROR
 ├◆ Failed to download from Pinterest
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Failed to download Pinterest media
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2212,7 +2644,7 @@ case 'ghstalk': {
     if (!text) return reply(`┌⪼❏ GITHUB STALK
 ├◆ Please provide a GitHub username
 ├◆ USAGE: .githubstalk username
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         let res = await axios.get(`https://api.github.com/users/${text}`);
@@ -2233,7 +2665,7 @@ case 'ghstalk': {
 ├◆ Created: ${new Date(data.created_at).toLocaleDateString()}
 ├◆ Updated: ${new Date(data.updated_at).toLocaleDateString()}
 ├◆ Profile: ${data.html_url}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
         
         await minato.sendMessage(m.chat, {
             image: { url: data.avatar_url },
@@ -2244,7 +2676,7 @@ case 'ghstalk': {
         reply(`┌⪼❏ ERROR
 ├◆ User not found or API error
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2255,7 +2687,7 @@ case 'repoinfo': {
     if (!text) return reply(`┌⪼❏ GITHUB REPO
 ├◆ Please provide username/repo
 ├◆ USAGE: .ghrepo username/repository
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         let res = await axios.get(`https://api.github.com/repos/${text}`);
@@ -2275,7 +2707,7 @@ case 'repoinfo': {
 ├◆ Updated: ${new Date(data.updated_at).toLocaleDateString()}
 ├◆ Topics: ${data.topics?.join(', ') || 'None'}
 ├◆ URL: ${data.html_url}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
         
         await minato.sendMessage(m.chat, {
             image: { url: data.owner.avatar_url },
@@ -2286,7 +2718,7 @@ case 'repoinfo': {
         reply(`┌⪼❏ ERROR
 ├◆ Repository not found or API error
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2297,7 +2729,7 @@ case 'github': {
     if (!text) return reply(`┌⪼❏ GITHUB SEARCH
 ├◆ Please provide a search query
 ├◆ USAGE: .ghsearch whatsapp-bot
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
         let res = await axios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(text)}&per_page=5`);
@@ -2317,17 +2749,17 @@ case 'github': {
 ├◆
 ${repos}
 ├◆
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         } else {
             reply(`┌⪼❏ NO RESULTS
 ├◆ No repositories found for: ${text}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } catch (err) {
         reply(`┌⪼❏ ERROR
 ├◆ Search failed
 ├◆ ${err.message}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2336,15 +2768,15 @@ case 'update':
 case 'upgrade': {
     if (!isCreator) return reply(`┌⪼❏ ACCESS DENIED
 ├◆ Only bot owner can update
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     reply(`┌⪼❏ UPDATE CHECK
 ├◆ Checking for updates...
 ├◆ Current Version: ${global.versionBot}
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
-        let res = await axios.get('https://api.github.com/repos/KNOXPRIME/NULL-CRASH/contents/package.json');
+        let res = await axios.get('https://api.github.com/repos/det-core/NULL/contents/package.json');
         let content = Buffer.from(res.data.content, 'base64').toString();
         let remote = JSON.parse(content);
         
@@ -2354,13 +2786,13 @@ case 'upgrade': {
 ├◆ New Version: ${remote.version}
 ├◆
 ├◆ Updating bot...
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
             
             // Download and replace files
             let files = ['index.js', 'null.js', 'settings.js', 'package.json'];
             for (let file of files) {
                 try {
-                    let fileRes = await axios.get(`https://raw.githubusercontent.com/KNOXPRIME/NULL-CRASH/main/${file}`);
+                    let fileRes = await axios.get(`https://raw.githubusercontent.com/det-core/NULL/main/${file}`);
                     fs.writeFileSync(`./${file}`, fileRes.data);
                 } catch (e) {
                     console.log(`Failed to update ${file}:`, e.message);
@@ -2370,7 +2802,7 @@ case 'upgrade': {
             reply(`┌⪼❏ UPDATE COMPLETE
 ├◆ Bot updated to version ${remote.version}
 ├◆ Restarting in 3 seconds...
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
             
             setTimeout(() => process.exit(0), 3000);
             
@@ -2378,14 +2810,14 @@ case 'upgrade': {
             reply(`┌⪼❏ UP TO DATE
 ├◆ Version: ${global.versionBot}
 ├◆ No updates available
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
         }
     } catch (err) {
         reply(`┌⪼❏ UPDATE FAILED
 ├◆ Could not check for updates
 ├◆ Error: ${err.message}
 ├◆ Check your GitHub repo settings
-└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+└ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     }
 }
 break;
@@ -2513,8 +2945,8 @@ case 'tagall': {
                 forwardingScore: 999,
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363402881295184@newsletter',
-                    newsletterName: '¿? JEAN STEPH TECH ¿?',
+                    newsletterJid: '120363423407628679@newsletter',
+                    newsletterName: 'Nᴜʟʟ Cʀᴀsʜ',
                     serverMessageId: 143
                 }
             },
@@ -2566,7 +2998,7 @@ case 'fb': {
     if (!text) return reply('❌ Enter Facebook URL');
 
     try {
-        let res = await axios.get(`https://api.vreden.my.id/api/fbdl?url=${text}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/facebook?url=${text}`);
         let data = res.data;
 
         await minato.sendMessage(m.chat, {
@@ -2584,7 +3016,7 @@ case 'insta': {
     if (!text) return reply('❌ Enter Instagram URL');
 
     try {
-        let res = await axios.get(`https://api.vreden.my.id/api/igdl?url=${text}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/instagram?url=${text}`);
         let data = res.data;
 
         await minato.sendMessage(m.chat, {
@@ -2602,7 +3034,7 @@ case 'tiktok': {
     if (!text) return reply('❌ Enter TikTok URL');
 
     try {
-        let res = await axios.get(`https://api.tiklydown.eu.org/api/download?url=${text}`);
+        let res = await axios.get(`https://api.vreden.my.id/api/v1/download/tiktok?url=${text}`);
         let data = res.data;
 
         await minato.sendMessage(m.chat, {
@@ -2615,7 +3047,6 @@ case 'tiktok': {
     }
 }
 break;
-// ================= ( Case ping )=====================
 // ================= ( Case checkchannel )=====================
 case "cekidch": case "idch": {
 if (!text) return reply("*Put link*")
@@ -2644,7 +3075,6 @@ case "self":{
     case 'owner': {
     const owners = [
         { name: "ꪶ ¡ϻ Nᴜʟʟ ꫂ", number: "2347030626048" },
-        { name: "CODEBREAKER", number: "2348168666686" },
     ];
     
     const vcards = owners.map(owner => 
@@ -2704,7 +3134,7 @@ case "delay-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
+© Nᴜʟʟ Cʀᴀsʜ`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -2757,7 +3187,7 @@ case "crash-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
+© Nᴜʟʟ Cʀᴀsʜ`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -2809,7 +3239,7 @@ case "fc-andro": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
+© Nᴜʟʟ Cʀᴀsʜ`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -2858,7 +3288,7 @@ case "exploit-ios": {
 𝑇𝑎𝑟𝑔𝑒𝑡 : ${pepec}
 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 : ${command}
 
-© 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`)
+© Nᴜʟʟ Cʀᴀsʜ`)
    
 
 minato.sendMessage(from, { react: { text: "⌛", key: m.key } })
@@ -2959,15 +3389,15 @@ break;
 case 'support': {
 if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
     let support = `
-*</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅 𝚂𝚄𝙿𝙿𝙾𝚁𝚃*
+*ꪶ ¡ϻ Nᴜʟʟ ꫂ 𝙳𝙴𝚅 𝚂𝚄𝙿𝙿𝙾𝚁𝚃*
 
-*𝙱𝙾𝚃 𝙳𝙴𝚅𝙴𝙻𝙾𝙿𝙴𝚁 :* </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅
-*𝚃𝙴𝙻𝙴𝙶𝚁𝙰𝙼 :* https://t.me/MinatoDevNinja
+*𝙱𝙾𝚃 𝙳𝙴𝚅𝙴𝙻𝙾𝙿𝙴𝚁 :* ꪶ ¡ϻ Nᴜʟʟ ꫂ
+*𝚃𝙴𝙻𝙴𝙶𝚁𝙰𝙼 :* https://t.me/knoxprime
 
 *𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿 𝙲𝙷𝙰𝙽𝙽𝙴𝙻*
-https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u
+https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S
 
-> 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`
+> Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`
     minato.sendMessage(m.chat, { 
         text: support,
         contextInfo: {
@@ -2976,12 +3406,12 @@ https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u
             externalAdReply: {
                 showAdAttribution: false,
                 renderLargerThumbnail: true,
-                title: `𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻`,
-                body: `</> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`,
+                title: `Nᴜʟʟ Cʀᴀsʜ`,
+                body: `ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
                 mediaType: 1,
-                thumbnailUrl: 'https://files.catbox.moe/s51p6p.jpg',
+                thumbnailUrl: 'https://files.catbox.moe/4w8x5f.png',
                 thumbnail: ``,
-                sourceUrl: `https://whatsapp.com/channel/0029VbAj0uCLikg6Pfjs4i2u`
+                sourceUrl: `https://whatsapp.com/channel/0029VbBwJYo6BIEp0Xlm1G0S`
             }
         }
     }, { quoted: HKQuoted });

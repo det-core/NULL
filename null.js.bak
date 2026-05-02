@@ -70,7 +70,6 @@ const isCmd = !!prefix;
 const args = isCmd ? body.slice(prefix.length).trim().split(/ +/).slice(1) : []; 
 const command = isCmd ? body.slice(prefix.length).trim().split(/ +/)[0].toLowerCase() : "";
 const text = args.join(" "); 
-console.log("DEBUG:", { body, prefix, isCmd, command, mtype: m.mtype, sender: m.sender });
 const fatkuns = m.quoted || m;
 const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns.mtype)
 ? fatkuns[Object.keys(fatkuns)[1] || Object.keys(fatkuns)[0]]

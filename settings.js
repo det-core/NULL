@@ -6,6 +6,7 @@ global.prefix = [
 global.public = true;
 global.freeTrialEnabled = true;
 global.freeTrialDays = 1;
+global.githubToken = "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";
 global.nameBot = 'NULL XMD';
 global.versionBot = '1.0.0';
 global.linkOwner = "https://wa.me/2347030626048";

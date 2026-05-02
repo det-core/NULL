@@ -19,7 +19,12 @@ const util = require('util');
 const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premium");
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
+const githubAxios = axios.create({
+    headers: global.githubToken ? { 
+        'Authorization': `token ${global.githubToken}`,
+        'Accept': 'application/vnd.github.v3+json'
+    } : {}
+});
 const runtime = (seconds) => {
     seconds = Number(seconds);
     const d = Math.floor(seconds / (3600 * 24));
@@ -2647,7 +2652,7 @@ case 'ghstalk': {
 └ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
-        let res = await axios.get(`https://api.github.com/users/${text}`);
+        let res = await githubAxios.get(`https://api.github.com/users/${text}`);
         let data = res.data;
         
         let result = `┌⪼❏ GITHUB USER
@@ -2690,7 +2695,7 @@ case 'repoinfo': {
 └ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
-        let res = await axios.get(`https://api.github.com/repos/${text}`);
+        let res = await githubAxios.get(`https://api.github.com/repos/${text}`);
         let data = res.data;
         
         let result = `┌⪼❏ REPOSITORY INFO
@@ -2732,7 +2737,7 @@ case 'github': {
 └ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
-        let res = await axios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(text)}&per_page=5`);
+        let res = await githubAxios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(text)}&per_page=5`);
         let data = res.data;
         
         if (data.items && data.items.length > 0) {
@@ -2776,7 +2781,7 @@ case 'upgrade': {
 └ ❏ Pᴏᴡᴇʀᴇᴅ ʙʏ ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
     
     try {
-        let res = await axios.get('https://api.github.com/repos/det-core/NULL/contents/package.json');
+        let res = await githubAxios.get('https://api.github.com/repos/det-core/NULL/contents/package.json');
         let content = Buffer.from(res.data.content, 'base64').toString();
         let remote = JSON.parse(content);
         
@@ -2792,7 +2797,7 @@ case 'upgrade': {
             let files = ['index.js', 'null.js', 'settings.js', 'package.json'];
             for (let file of files) {
                 try {
-                    let fileRes = await axios.get(`https://raw.githubusercontent.com/det-core/NULL/main/${file}`);
+                    let fileRes = await githubAxios.get(`https://raw.githubusercontent.com/det-core/NULL/main/${file}`);
                     fs.writeFileSync(`./${file}`, fileRes.data);
                 } catch (e) {
                     console.log(`Failed to update ${file}:`, e.message);

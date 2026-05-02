@@ -916,7 +916,7 @@ ${channelList}
             return;
           }
           if (statusCode === DisconnectReason.restartRequired || statusCode === 515) {
-            if (global.sessionState[id] === "ACTIVE" || global.sessionState[id] === "PAIRING" || global.sessionState[id] === "CONNECTING") {
+            if (global.sessionState[id] === "ACTIVE" || global.sessionState[id] === "PAIRING" || global.sessionState[id] === "CONNECTING" || global.sessionState[id] === "AWAITING_PAIR") {
               console.log(`Reconnecting for user ${id} in 5 seconds...`);
               global.sessionState[id] = "RECONNECTING";
               det.sendMessage(chatId,

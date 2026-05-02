@@ -912,9 +912,6 @@ ${channelList}
           det.sendMessage(chatId,
 `┌⪼❏ WHATSAPP CONNECTED
 ├◆ STATUS: ONLINE
-├◆ Your WhatsApp session is now active
-├◆ Bot commands will now work via WhatsApp
-├◆ Type menu in WhatsApp to see commands
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
           console.log(`WHATSAPP CONNECTED for user ${id} - null.js bot is now active`);
         }
@@ -965,13 +962,6 @@ ${channelList}
 `┌⪼❏ PAIRING CODE
 ├◆ NUMBER: +${number}
 ├◆ CODE: ${code}
-├◆
-├◆ To connect:
-├◆ 1. Open WhatsApp on your phone
-├◆ 2. Go to Settings > Linked Devices
-├◆ 3. Tap "Link a Device"
-├◆ 4. Enter this code
-├◆
 ├◆ Code expires in 60 seconds!
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
           } catch (err) {
@@ -1005,9 +995,6 @@ ${channelList}
 `┌⪼❏ GENERATING CODE
 ├◆ NUMBER: +${number}
 ├◆ Please wait...
-├◆
-├◆ Make sure WhatsApp is installed
-├◆ and you have internet connection
 └ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
   startSocket();
 });

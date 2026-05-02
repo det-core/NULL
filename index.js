@@ -64,8 +64,8 @@ function smsg(conn, m, store) {
         m.chat = m.key.remoteJid;
         m.fromMe = m.key.fromMe;
         m.isGroup = m.chat.endsWith('@g.us');
-        m.sender = conn.decodeJid(m.fromMe && conn.user.id || m.participant || m.key.participant || m.chat || '');
-        if (m.isGroup) m.participant = conn.decodeJid(m.key.participant) || '';
+        m.sender = (m.fromMe && conn.user?.id || m.participant || m.key.participant || m.chat || '').replace(/:.*/, '');
+if (m.isGroup) m.participant = (m.key.participant || '').replace(/:.*/, '');
     }
     
     if (m.message) {
@@ -92,7 +92,7 @@ function smsg(conn, m, store) {
                 m.quoted = { text: m.quoted };
             }
             m.quoted.mtype = type;
-            m.quoted.sender = conn.decodeJid(m.msg?.contextInfo?.participant || "");
+            m.quoted.sender = (m.msg?.contextInfo?.participant || "").replace(/:.*/, '');
             m.quoted.text = m.quoted.text || m.quoted.caption || '';
             m.quoted.mentionedJid = m.msg?.contextInfo?.mentionedJid || [];
             m.quoted.download = () => conn.downloadMediaMessage(m.quoted);
